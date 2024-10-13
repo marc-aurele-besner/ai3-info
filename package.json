@@ -2,6 +2,15 @@
   "name": "ai3-info",
   "version": "0.1.0",
   "private": true,
+  "description": "A simple space pledged gager to calculate and display the space pledged on the Autonomys Network.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marc-aurele-besner/ai3-info"
+  },
+  "author": {
+    "name": "Marc-Aurele Besner",
+    "url": "https://github.com/marc-aurele-besner"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

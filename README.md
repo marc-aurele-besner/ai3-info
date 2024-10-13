@@ -1,4 +1,14 @@
+![Vercel Deploy](https://deploy-badge.vercel.app/vercel/ai3-info)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Project Overview
+
+This project is a simple space pledged gager designed to calculate and display the space pledged on the [Autonomys Network](https://autonomys.xyz). It provides current network details and is part of the [ai3-info](https://github.com/marc-aurele-besner/ai3-info) repository.
+
+### Built with Deno 2
+
+This project was built using [Deno 2](https://deno.com/), a modern JavaScript and TypeScript runtime. Deno provides a secure and efficient environment for running JavaScript applications.
 
 ## Getting Started
 
