@@ -19,7 +19,6 @@ type GLTFResult = GLTF & {
     ["Satin Glass"]: THREE.MeshStandardMaterial;
     Material: THREE.MeshStandardMaterial;
   };
-  // animations: GLTFAction[]
 };
 
 export const Ring: FC = (props: JSX.IntrinsicElements["group"]) => {
