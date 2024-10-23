@@ -2790,6 +2790,7 @@
         "npm:@autonomys/auto-utils@~0.6.8",
         "npm:@react-three/drei@^9.114.6",
         "npm:@react-three/fiber@^8.17.10",
+        "npm:@react-three/rapier@^1.5.0",
         "npm:@types/node@20",
         "npm:@types/react-dom@18",
         "npm:@types/react@18",
