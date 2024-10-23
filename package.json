@@ -22,6 +22,7 @@
     "@autonomys/auto-utils": "^0.6.8",
     "@react-three/drei": "^9.114.6",
     "@react-three/fiber": "^8.17.10",
+    "@react-three/rapier": "^1.5.0",
     "@types/three": "^0.169.0",
     "next": "14.2.15",
     "react": "^18",
