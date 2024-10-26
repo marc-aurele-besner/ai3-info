@@ -1,7 +1,7 @@
 "use client";
 
 import { ApiData, fetchApiData } from "@/utils/api";
-import { Text, useGLTF } from "@react-three/drei"; // Svg,
+import { Text, useGLTF } from "@react-three/drei";
 import { extend, useLoader } from "@react-three/fiber";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";

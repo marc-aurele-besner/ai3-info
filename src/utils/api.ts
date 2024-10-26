@@ -1,18 +1,15 @@
 import { formatSpacePledged } from "@/utils/number";
 import { blockchainSize, spacePledge } from "@autonomys/auto-consensus";
-import { activate } from "@autonomys/auto-utils";
+import { activate, NetworkId } from "@autonomys/auto-utils";
 
 export type ApiData = {
   spacePledged: string;
   blockchainSize: string;
 };
 
-const NETWORK_ID = "gemini-3h";
-const activateParams = { networkId: NETWORK_ID };
-
 export const fetchApiData = async (): Promise<ApiData> => {
   try {
-    const api = await activate(activateParams);
+    const api = await activate({ networkId: NetworkId.TAURUS });
     const [total, size] = await Promise.all([
       spacePledge(api),
       blockchainSize(api),

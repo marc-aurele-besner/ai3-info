@@ -3,6 +3,7 @@
 import { FC } from "react";
 import * as THREE from "three";
 import { GLTF } from "three-stdlib";
+import { useGLTF } from "@react-three/drei";
 
 type GLTFResult = GLTF & {
   nodes: {
