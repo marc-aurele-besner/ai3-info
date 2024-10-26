@@ -56,6 +56,23 @@ export const Scene: React.FC = () => {
         decay={0.3}
         intensity={Math.PI}
       />
+      {/* Light Cube */}
+      <spotLight
+        position={[0, 50, 0]}
+        angle={0}
+        penumbra={0}
+        color="#ffffff"
+        decay={0}
+        intensity={Math.PI * 10}
+      />
+      <spotLight
+        position={[0, -50, 0]}
+        angle={0}
+        penumbra={0}
+        color="#ffffff"
+        decay={0}
+        intensity={Math.PI * 10}
+      />
       <group rotation={[0, 1, 0]}>
         <Ring />
         <group>
