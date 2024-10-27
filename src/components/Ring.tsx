@@ -183,7 +183,7 @@ const CurvedSVGText: React.FC<CurvedSVGTextProps> = ({
             -angleRange / 2 +
             (pathIndex / svgData.paths.length - 0.4) * angleRange;
           const x = radius * Math.sin(angle);
-          const z = radius * Math.cos(angle) - 2.15;
+          const z = radius * Math.cos(angle) - 2.1;
 
           return (
             <mesh
