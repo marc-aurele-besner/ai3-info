@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { FC, Suspense } from "react";
 import { Cube } from "./Cube";
 import { Ring } from "./Ring";
+import { RingCompressed } from "./RingCompressed";
 
 export const Scene: FC = () => {
   return (
@@ -83,7 +84,9 @@ export const Scene: FC = () => {
         {/* Rotate Ring Model */}
         <group rotation={[0, 1, 0]}>
           {/* Ring Model */}
-          <Ring />
+          <Suspense fallback={<RingCompressed />}>
+            <Ring />
+          </Suspense>
 
           {/* Top Spot Light */}
           <spotLight
