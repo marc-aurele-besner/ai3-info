@@ -2,200 +2,202 @@
 
 import { CameraControls, Stars } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import React from "react";
+import { FC, Suspense } from "react";
 import { Cube } from "./Cube";
 import { Ring } from "./Ring";
 
-export const Scene: React.FC = () => {
+export const Scene: FC = () => {
   return (
-    <Canvas
-      camera={{
-        position: [100, 100, 60],
-        fov: 5,
-      }}
-    >
-      <Stars count={50000} />
-      <ambientLight intensity={Math.PI / 1.5} />
-      {/* Key Top Light */}
-      <spotLight
-        position={[50, 50, 50]}
-        angle={0.15}
-        penumbra={1}
-        color="#566EB1"
-        decay={0}
-        intensity={Math.PI * 10}
-      />
-      <spotLight
-        position={[-50, 50, 50]}
-        angle={0.15}
-        penumbra={1}
-        color="#7E91C6"
-        decay={0}
-        intensity={Math.PI * 10}
-      />
-      <spotLight
-        position={[50, 50, -50]}
-        angle={0.15}
-        penumbra={1}
-        color="#566EB1"
-        decay={0}
-        intensity={Math.PI * 10}
-      />
-      <spotLight
-        position={[-50, 50, -50]}
-        angle={0.15}
-        penumbra={1}
-        color="#7E91C6"
-        decay={0}
-        intensity={Math.PI * 10}
-      />
-
-      {/* Side Outside Ring Light - Left Front */}
-      <pointLight
-        position={[-15, 1, 15]}
-        color="#7E91C6"
-        decay={0.5}
-        intensity={Math.PI * 8}
-      />
-      {/* Side Outside Ring Light - Right Front */}
-      <pointLight
-        position={[15, 1, 15]}
-        color="#7E91C6"
-        decay={0.5}
-        intensity={Math.PI * 8}
-      />
-      {/* Side Outside Ring Light - Left Back */}
-      <pointLight
-        position={[-15, 1, -15]}
-        color="#7E91C6"
-        decay={0.5}
-        intensity={Math.PI * 8}
-      />
-      {/* Side Outside Ring Light - Right Back */}
-      <pointLight
-        position={[15, 1, -15]}
-        color="#7E91C6"
-        decay={0.5}
-        intensity={Math.PI * 8}
-      />
-
-      {/* Rotate Ring Model */}
-      <group rotation={[0, 1, 0]}>
-        {/* Ring Model */}
-        <Ring />
-
-        {/* Top Spot Light */}
+    <Suspense fallback={<span>loading...</span>}>
+      <Canvas
+        camera={{
+          position: [100, 100, 60],
+          fov: 5,
+        }}
+      >
+        <Stars count={50000} />
+        <ambientLight intensity={Math.PI / 1.5} />
+        {/* Key Top Light */}
         <spotLight
-          position={[0, 15, 0]}
-          angle={25}
+          position={[50, 50, 50]}
+          angle={0.15}
+          penumbra={1}
           color="#566EB1"
           decay={0}
-          intensity={Math.PI * 100}
+          intensity={Math.PI * 10}
         />
-        {/* Bottom Spot Light */}
         <spotLight
-          position={[0, -15, 0]}
-          angle={1}
+          position={[-50, 50, 50]}
+          angle={0.15}
+          penumbra={1}
+          color="#7E91C6"
+          decay={0}
+          intensity={Math.PI * 10}
+        />
+        <spotLight
+          position={[50, 50, -50]}
+          angle={0.15}
+          penumbra={1}
           color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
+          decay={0}
+          intensity={Math.PI * 10}
+        />
+        <spotLight
+          position={[-50, 50, -50]}
+          angle={0.15}
+          penumbra={1}
+          color="#7E91C6"
+          decay={0}
+          intensity={Math.PI * 10}
         />
 
-        {/* Top Spot Light - Front Facing Arc around Cube */}
-        <spotLight
-          position={[0, -10, 2.5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
+        {/* Side Outside Ring Light - Left Front */}
+        <pointLight
+          position={[-15, 1, 15]}
+          color="#7E91C6"
+          decay={0.5}
+          intensity={Math.PI * 8}
         />
-        <spotLight
-          position={[0, -7.5, 2.5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
+        {/* Side Outside Ring Light - Right Front */}
+        <pointLight
+          position={[15, 1, 15]}
+          color="#7E91C6"
+          decay={0.5}
+          intensity={Math.PI * 8}
         />
-        <spotLight
-          position={[0, -5, 5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
+        {/* Side Outside Ring Light - Left Back */}
+        <pointLight
+          position={[-15, 1, -15]}
+          color="#7E91C6"
+          decay={0.5}
+          intensity={Math.PI * 8}
         />
-        <spotLight
-          position={[0, -2.5, 7.5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        <spotLight
-          position={[0, 2.5, 7.5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        <spotLight
-          position={[0, 5, 5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        <spotLight
-          position={[0, 7.5, 2.5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        <spotLight
-          position={[0, 10, 2.5]}
-          angle={1}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
+        {/* Side Outside Ring Light - Right Back */}
+        <pointLight
+          position={[15, 1, -15]}
+          color="#7E91C6"
+          decay={0.5}
+          intensity={Math.PI * 8}
         />
 
-        {/* Front Facing Inside Ring Light */}
-        <spotLight
-          position={[0, 0, 7.5]}
-          angle={0.5}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        {/* Back Facing Inside Ring Light */}
-        <spotLight
-          position={[0, 0, -7.5]}
-          angle={2}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        {/* Left Facing Inside Ring Light */}
-        <spotLight
-          position={[-7.5, 0, 0]}
-          angle={2}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
-        {/* Right Facing Inside Ring Light */}
-        <spotLight
-          position={[7.5, 0, 0]}
-          angle={2}
-          color="#566EB1"
-          decay={1}
-          intensity={Math.PI * 100}
-        />
+        {/* Rotate Ring Model */}
+        <group rotation={[0, 1, 0]}>
+          {/* Ring Model */}
+          <Ring />
 
-        {/* The Cube */}
-        <Cube />
-      </group>
-      <CameraControls />
-    </Canvas>
+          {/* Top Spot Light */}
+          <spotLight
+            position={[0, 15, 0]}
+            angle={25}
+            color="#566EB1"
+            decay={0}
+            intensity={Math.PI * 100}
+          />
+          {/* Bottom Spot Light */}
+          <spotLight
+            position={[0, -15, 0]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+
+          {/* Top Spot Light - Front Facing Arc around Cube */}
+          <spotLight
+            position={[0, -10, 2.5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, -7.5, 2.5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, -5, 5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, -2.5, 7.5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, 2.5, 7.5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, 5, 5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, 7.5, 2.5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          <spotLight
+            position={[0, 10, 2.5]}
+            angle={1}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+
+          {/* Front Facing Inside Ring Light */}
+          <spotLight
+            position={[0, 0, 7.5]}
+            angle={0.5}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          {/* Back Facing Inside Ring Light */}
+          <spotLight
+            position={[0, 0, -7.5]}
+            angle={2}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          {/* Left Facing Inside Ring Light */}
+          <spotLight
+            position={[-7.5, 0, 0]}
+            angle={2}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+          {/* Right Facing Inside Ring Light */}
+          <spotLight
+            position={[7.5, 0, 0]}
+            angle={2}
+            color="#566EB1"
+            decay={1}
+            intensity={Math.PI * 100}
+          />
+
+          {/* The Cube */}
+          <Cube />
+        </group>
+        <CameraControls />
+      </Canvas>
+    </Suspense>
   );
 };
