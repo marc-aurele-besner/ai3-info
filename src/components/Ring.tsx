@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiData, fetchApiData } from "@/utils/api";
+import { ApiData, DEFAULT_API_DATA, fetchApiData } from "@/utils/api";
 import { Text, useGLTF } from "@react-three/drei";
 import { extend, useLoader } from "@react-three/fiber";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -29,14 +29,11 @@ type GLTFResult = GLTF & {
 
 export const Ring: FC = (props: JSX.IntrinsicElements["group"]) => {
   const { nodes, materials } = useGLTF("/models/ring.glb") as GLTFResult;
-  const [apiData, setApiData] = useState<ApiData>({
-    spacePledged: "loading...",
-    blockchainSize: "loading...",
-  });
+  const [apiData, setApiData] = useState<ApiData>(DEFAULT_API_DATA);
 
   const fetchData = useCallback(async () => {
-    const { spacePledged, blockchainSize } = await fetchApiData();
-    setApiData({ spacePledged, blockchainSize });
+    const data = await fetchApiData();
+    setApiData(data);
   }, []);
 
   useEffect(() => {
@@ -64,12 +61,19 @@ export const Ring: FC = (props: JSX.IntrinsicElements["group"]) => {
         position={[0, 0, -8.5]}
       />
       {/* Autonomys logo + Text */}
-      <CurvedSVGText
+      <CurvedAutonomysLogo
         url="images/Autonomys.svg"
         radius={10}
         angleRange={Math.PI / 10}
-        depth={7.8}
+        depth={7.75}
         scale={0.003}
+      />
+      {/* Block Height Text */}
+      <CurvedText
+        text={`Block Height: ${apiData.blockHeight}`}
+        radius={10}
+        angleRange={Math.PI / 9.5}
+        yOffset={-0.4}
       />
       {/* Space Pledge Text */}
       <CurvedText
@@ -152,7 +156,7 @@ const CurvedText: FC<CurvedTextProps> = ({
     </group>
   );
 };
-interface CurvedSVGTextProps {
+interface CurvedAutonomysLogoProps {
   url: string;
   radius: number;
   angleRange: number;
@@ -160,7 +164,7 @@ interface CurvedSVGTextProps {
   scale: number;
 }
 
-const CurvedSVGText: React.FC<CurvedSVGTextProps> = ({
+const CurvedAutonomysLogo: React.FC<CurvedAutonomysLogoProps> = ({
   url,
   radius,
   angleRange,
@@ -173,7 +177,7 @@ const CurvedSVGText: React.FC<CurvedSVGTextProps> = ({
   return (
     <group
       ref={groupRef}
-      position={[-1.5, -0.15, depth]}
+      position={[-1.5, 0.35, depth]}
       scale={[-scale, scale, scale]}
       rotation={[0, 0, Math.PI]}
     >
@@ -181,7 +185,7 @@ const CurvedSVGText: React.FC<CurvedSVGTextProps> = ({
         path.toShapes(true).map((shape: THREE.Shape, shapeIndex: number) => {
           const angle =
             -angleRange / 2 +
-            (pathIndex / svgData.paths.length - 0.4) * angleRange;
+            (pathIndex / svgData.paths.length - 0.5) * angleRange;
           const x = radius * Math.sin(angle);
           const z = radius * Math.cos(angle) - 2.1;
 
