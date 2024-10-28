@@ -12,6 +12,12 @@ export type ApiData = {
   blockchainSize: string;
 };
 
+export const DEFAULT_API_DATA: ApiData = {
+  blockHeight: 0,
+  spacePledged: "loading...",
+  blockchainSize: "loading...",
+};
+
 export const fetchApiData = async (): Promise<ApiData> => {
   try {
     const api = await activate({ networkId: NetworkId.TAURUS });

@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiData, fetchApiData } from "@/utils/api";
+import { ApiData, DEFAULT_API_DATA, fetchApiData } from "@/utils/api";
 import { Text, useGLTF } from "@react-three/drei";
 import { extend, useLoader } from "@react-three/fiber";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -29,11 +29,7 @@ type GLTFResult = GLTF & {
 
 export const Ring: FC = (props: JSX.IntrinsicElements["group"]) => {
   const { nodes, materials } = useGLTF("/models/ring.glb") as GLTFResult;
-  const [apiData, setApiData] = useState<ApiData>({
-    blockHeight: 0,
-    spacePledged: "loading...",
-    blockchainSize: "loading...",
-  });
+  const [apiData, setApiData] = useState<ApiData>(DEFAULT_API_DATA);
 
   const fetchData = useCallback(async () => {
     const data = await fetchApiData();
