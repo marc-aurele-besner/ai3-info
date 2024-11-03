@@ -2,15 +2,15 @@
 
 import { CameraControls, Loader, Stars, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { FC, Suspense, lazy } from "react";
+import dynamic from "next/dynamic";
+import { FC, Suspense } from "react";
 import { Cube } from "./Cube";
 import { RingCompressed } from "./RingCompressed";
 
+const Ring = dynamic(() => import("./Ring").then((mod) => mod.Ring), {
+  ssr: false,
+});
 export const Scene: FC = () => {
-  const Ring = lazy(() =>
-    import("./Ring").then((module) => ({ default: module.Ring }))
-  );
-
   return (
     <>
       <Suspense fallback={<span>loading...</span>}>
