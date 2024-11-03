@@ -174,5 +174,3 @@ const CurvedSVGText: React.FC<CurvedSVGTextProps> = ({
     </group>
   );
 };
-
-useGLTF.preload("/models/ring-transformed.glb");

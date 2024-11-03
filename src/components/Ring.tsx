@@ -204,5 +204,3 @@ const CurvedAutonomysLogo: React.FC<CurvedAutonomysLogoProps> = ({
     </group>
   );
 };
-
-useGLTF.preload("/models/ring.glb");
