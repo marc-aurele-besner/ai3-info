@@ -20,7 +20,7 @@ export const DEFAULT_API_DATA: ApiData = {
 
 export const fetchApiData = async (): Promise<ApiData> => {
   try {
-    const api = await activate({ networkId: NetworkId.TAURUS });
+    const api = await activate({ networkId: NetworkId.MAINNET });
     const [blockHeight, total, size] = await Promise.all([
       blockNumber(api),
       spacePledged(api),
