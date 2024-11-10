@@ -18,9 +18,9 @@ export const DEFAULT_API_DATA: ApiData = {
   blockchainSize: "loading...",
 };
 
-export const fetchApiData = async (): Promise<ApiData> => {
+export const fetchApiData = async (networkId: NetworkId): Promise<ApiData> => {
   try {
-    const api = await activate({ networkId: NetworkId.MAINNET });
+    const api = await activate({ networkId });
     const [blockHeight, total, size] = await Promise.all([
       blockNumber(api),
       spacePledged(api),
