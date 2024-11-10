@@ -1,8 +1,10 @@
 "use client";
 
+import { NetworkIdParam } from "@/types/app";
 import { ApiData, DEFAULT_API_DATA, fetchApiData } from "@/utils/api";
 import { Text, useGLTF } from "@react-three/drei";
 import { extend, useLoader } from "@react-three/fiber";
+import { useParams } from "next/navigation";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { ShapeGeometry } from "three";
@@ -27,10 +29,11 @@ export const RingCompressed: FC = (props: JSX.IntrinsicElements["group"]) => {
   const { nodes, materials } = useGLTF(
     "/models/ring-transformed.glb"
   ) as GLTFResult;
+  const { networkId } = useParams<NetworkIdParam>();
   const [apiData, setApiData] = useState<ApiData>(DEFAULT_API_DATA);
 
   const fetchData = useCallback(async () => {
-    const data = await fetchApiData();
+    const data = await fetchApiData(networkId);
     setApiData(data);
   }, []);
 
@@ -61,7 +64,7 @@ export const RingCompressed: FC = (props: JSX.IntrinsicElements["group"]) => {
       />
       {/* Autonomys logo + Text */}
       <CurvedSVGText
-        url="images/Autonomys.svg"
+        url="/images/Autonomys.svg"
         radius={10}
         angleRange={Math.PI / 10}
         depth={7.8}
