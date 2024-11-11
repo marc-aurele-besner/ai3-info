@@ -37,7 +37,6 @@ export const Cube: FC = (props: JSX.IntrinsicElements["group"]) => {
 
   return (
     <group {...props} dispose={null}>
-      {/* <DragControls> */}
       <mesh
         geometry={nodes.cube.geometry}
         material={materials["Satin Glass"]}
@@ -61,6 +60,7 @@ const Boxes: FC = () => {
   );
   const meshRef = useRef<THREE.InstancedMesh | null>(null);
   const prevRef = useRef<number | undefined>();
+
   useEffect(() => void (prevRef.current = hovered), [hovered]);
 
   useFrame((state) => {
@@ -82,18 +82,23 @@ const Boxes: FC = () => {
             Math.sin(y / 4 + time) +
             Math.sin(z / 4 + time);
           tempObject.rotation.z = tempObject.rotation.y * 2;
-          if (hovered !== prevRef.current) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (hovered !== (prevRef as any).Current) {
             (id === hovered
               ? tempColor.setRGB(10, 10, 10)
               : tempColor.set(data[id].color)
             ).toArray(colorArray, id * 3);
-            meshRef.current!.geometry.attributes.color.needsUpdate = true;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (meshRef as any).current.geometry.attributes.color.needsUpdate =
+              true;
           }
           tempObject.updateMatrix();
-          meshRef.current!.setMatrixAt(id, tempObject.matrix);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (meshRef as any).current.setMatrixAt(id, tempObject.matrix);
         }
     meshRef.current!.instanceMatrix.needsUpdate = true;
   });
+
   return (
     <instancedMesh
       ref={meshRef}
