@@ -1,46 +1,182 @@
+# AI3 Info - Autonomys Network Explorer
+
 ![Vercel Deploy](https://deploy-badge.vercel.app/vercel/ai3-info)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+> 🌐 **[Live Demo: https://www.ai3.info](https://www.ai3.info)**
 
-## Project Overview
+A modern web application that provides real-time insights into the Autonomys Network through an interactive 3D interface. Built with Next.js, React Three Fiber, and powered by the Auto SDK.
 
-This project is a simple space pledged gager designed to calculate and display the space pledged on the [Autonomys Network](https://autonomys.xyz). It provides current network details and is part of the [ai3-info](https://github.com/marc-aurele-besner/ai3-info) repository.
+## Overview
 
-### Built with Deno 2
+AI3 Info is a network explorer and visualization tool that allows users to:
 
-This project was built using [Deno 2](https://deno.com/), a modern JavaScript and TypeScript runtime. Deno provides a secure and efficient environment for running JavaScript applications.
+- View real-time network statistics across different Autonomys networks (Mainnet, Taurus, Gemini 3H)
+- Explore network status in an engaging 3D environment with interactive visualizations
+- Monitor space pledged on the Autonomys Network through immersive 3D representations
+- Track consensus metrics and network health with dynamic visual feedback
+
+### Built With
+
+- [Next.js 14](https://nextjs.org) - React framework for production
+- [Deno 2](https://deno.com/) - Modern JavaScript/TypeScript runtime
+- [Auto SDK](https://github.com/autonomys/auto-sdk) - Official Autonomys Network SDK
+- [React Three Fiber](https://github.com/pmndrs/react-three-fiber) - React renderer for Three.js
+- [Drei](https://github.com/pmndrs/drei) - Useful helpers for React Three Fiber
+- [Three.js](https://threejs.org) - 3D visualization library
+- [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
+
+## Features
+
+- **Multi-Network Support**: Switch between different Autonomys networks (Mainnet, Testnet-Taurus, Testnet-Gemini 3H)
+- **Real-Time Updates**: Live network statistics and metrics
+- **Interactive 3D Visualization**:
+  - Immersive exploration of network data
+  - Dynamic camera controls and animations
+  - Responsive 3D elements that react to network changes
+  - Custom shaders and effects for enhanced visuals
+- **Responsive Design**: Optimized for both desktop and mobile devices
+- **Auto SDK Integration**: Direct connection to Autonomys Network functionality
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- Deno 2
+- Yarn or npm
+- WebGL-compatible browser
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/marc-aurele-besner/ai3-info.git
+cd ai3-info
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn install
+# or
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Create a `.env.local` file with required environment variables:
 
-## Learn More
+```env
+NEXT_PUBLIC_AUTO_SDK_ENDPOINT=your_endpoint
+NEXT_PUBLIC_NETWORK_ID=your_network_id
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Start the development server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+yarn dev
+# or
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-## Deploy on Vercel
+## Technology Stack Details
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### React Three Fiber Integration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The project uses React Three Fiber for declarative 3D rendering:
+
+```tsx
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Environment } from "@react-three/drei";
+
+function Scene() {
+  return (
+    <Canvas>
+      <OrbitControls />
+      <Environment preset="city" />
+      <NetworkVisualization />
+    </Canvas>
+  );
+}
+```
+
+### Drei Helpers
+
+We utilize various Drei helpers for enhanced 3D functionality:
+
+- `OrbitControls` for camera manipulation
+- `Text3D` for 3D text rendering
+- `Environment` for scene lighting
+- `Effects` for post-processing
+- Custom materials and shaders
+
+### Auto SDK Integration
+
+This project uses the [@autonomys/auto-sdk](https://github.com/autonomys/auto-sdk) for blockchain interactions:
+
+```typescript
+import { activateWallet } from "@autonomys/auto-utils";
+import { balance } from "@autonomys/auto-consensus";
+
+const networkStats = async () => {
+  const { api } = await activateWallet({
+    networkId: "gemini-3h",
+  });
+  // Fetch network statistics
+  // ...
+};
+```
+
+## Project Structure
+
+```
+ai3-info/
+├── src/
+│   ├── app/          # Next.js pages and routing
+│   ├── components/   # React components
+│   │   ├── 3d/      # Three.js/R3F components
+│   │   ├── ui/      # User interface components
+│   │   └── network/ # Network-related components
+│   ├── utils/        # Utility functions
+│   └── styles/       # Global styles and Tailwind
+├── public/           # Static assets
+│   ├── models/      # 3D models and textures
+│   └── images/      # Images and icons
+└── ...config files
+```
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## Deployment
+
+This project is deployed on [Vercel](https://vercel.com) and can be accessed at [ai3.info](https://www.ai3.info/).
+
+For manual deployment:
+
+```bash
+yarn build
+yarn start
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Autonomys Network](https://autonomys.xyz)
+- [Marc-Aurèle Besner](https://github.com/marc-aurele-besner) - Project Creator
+- [React Three Fiber Team](https://github.com/pmndrs)
+- Autonomys Network Community
+
+## Links
+
+- [Live Demo](https://www.ai3.info)
+- [GitHub Repository](https://github.com/marc-aurele-besner/ai3-info)
+- [Auto SDK Documentation](https://github.com/autonomys/auto-sdk)
+- [React Three Fiber Documentation](https://docs.pmnd.rs/react-three-fiber)
+- [Drei Documentation](https://github.com/pmndrs/drei)
+- [Issue Tracker](https://github.com/marc-aurele-besner/ai3-info/issues)
