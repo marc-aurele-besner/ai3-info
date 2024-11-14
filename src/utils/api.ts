@@ -1,7 +1,7 @@
-import { formatSpacePledged } from "@/utils/number";
 import {
   blockchainSize,
   blockNumber,
+  formatSpaceToDecimal,
   spacePledged,
 } from "@autonomys/auto-consensus";
 import { activate, NetworkId } from "@autonomys/auto-utils";
@@ -29,8 +29,8 @@ export const fetchApiData = async (networkId: NetworkId): Promise<ApiData> => {
     await api.disconnect();
     return {
       blockHeight,
-      spacePledged: formatSpacePledged(total),
-      blockchainSize: formatSpacePledged(size),
+      spacePledged: formatSpaceToDecimal(parseInt(total.toString())),
+      blockchainSize: formatSpaceToDecimal(parseInt(size.toString())),
     };
   } catch (error) {
     console.error("Error fetching data:", error);
