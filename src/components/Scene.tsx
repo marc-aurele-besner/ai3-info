@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { FC, Suspense } from "react";
 import { Cube } from "./Cube";
-import { RingCompressed } from "./RingCompressed";
+// import { RingCompressed } from "./RingCompressed";
 
 const Ring = dynamic(() => import("./Ring").then((mod) => mod.Ring), {
   ssr: false,
@@ -88,9 +88,9 @@ export const Scene: FC = () => {
           {/* Rotate Ring Model */}
           <group rotation={[0, 1, 0]}>
             {/* Ring Model */}
-            <Suspense fallback={<RingCompressed />}>
-              <Ring />
-            </Suspense>
+            {/* <Suspense fallback={<RingCompressed />}> */}
+            <Ring />
+            {/* </Suspense> */}
 
             {/* Top Spot Light */}
             <spotLight
@@ -211,4 +211,4 @@ export const Scene: FC = () => {
   );
 };
 
-useGLTF.preload("/models/ring-transformed.glb");
+// useGLTF.preload("/models/ring-transformed.glb");
