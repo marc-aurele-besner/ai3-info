@@ -58,21 +58,18 @@ cd ai3-info
 2. Install dependencies:
 
 ```bash
+deno install
+# or
 yarn install
 # or
 npm install
 ```
 
-3. Create a `.env.local` file with required environment variables:
-
-```env
-NEXT_PUBLIC_AUTO_SDK_ENDPOINT=your_endpoint
-NEXT_PUBLIC_NETWORK_ID=your_network_id
-```
-
-4. Start the development server:
+3. Start the development server:
 
 ```bash
+deno task dev
+
 yarn dev
 # or
 npm run dev
@@ -117,14 +114,15 @@ This project uses the [@autonomys/auto-sdk](https://github.com/autonomys/auto-sd
 
 ```typescript
 import { activateWallet } from "@autonomys/auto-utils";
-import { balance } from "@autonomys/auto-consensus";
+import { spacePledged } from "@autonomys/auto-consensus";
 
 const networkStats = async () => {
   const { api } = await activateWallet({
-    networkId: "gemini-3h",
+    networkId: "mainnet",
   });
   // Fetch network statistics
-  // ...
+  const spacePledged = await spacePledged(api);
+  console.log(spacePledged);
 };
 ```
 
