@@ -18,8 +18,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@autonomys/auto-consensus": "^1.0.6",
-    "@autonomys/auto-utils": "^1.0.6",
+    "@autonomys/auto-consensus": "^1.0.9",
+    "@autonomys/auto-utils": "^1.0.9",
     "@react-three/drei": "^9.114.6",
     "@react-three/fiber": "^8.17.10",
     "@types/three": "^0.169.0",
