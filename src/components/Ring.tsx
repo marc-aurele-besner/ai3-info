@@ -37,7 +37,7 @@ export const Ring: FC = (props: JSX.IntrinsicElements["group"]) => {
   const fetchData = useCallback(async () => {
     const data = await fetchApiData(networkId);
     setApiData(data);
-  }, []);
+  }, [networkId]);
 
   useEffect(() => {
     fetchData();

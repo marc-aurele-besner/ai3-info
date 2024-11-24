@@ -1,6 +1,6 @@
 "use client";
 
-import { CameraControls, Loader, Stars, useGLTF } from "@react-three/drei";
+import { CameraControls, Loader, Stars } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { FC, Suspense } from "react";
