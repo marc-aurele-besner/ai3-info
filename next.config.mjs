@@ -8,6 +8,10 @@ const nextConfig = {
         fs: false,
       };
     }
+
+    // Enable WebAssembly experiments
+    config.experiments = { ...config.experiments, asyncWebAssembly: true };
+
     return config;
   },
 };
