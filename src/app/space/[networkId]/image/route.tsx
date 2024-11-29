@@ -33,6 +33,8 @@ function Screen({ data }: { data: ApiData }) {
         src={url + "/images/ai3-info-og-empty.png"}
         tw="w-[1200px] h-[630px]"
         alt={"Background Color"}
+        width={1200}
+        height={630}
       />
       <div tw="absolute flex flex-row border-none p-4 w-240 h-40 mt-48">
         <div tw="absolute flex flex-row border-none ml-100 mt-70 mb-4 p-6 w-120 h-40">
