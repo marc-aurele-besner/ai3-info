@@ -3,10 +3,9 @@ import { ApiData, fetchApiData } from "@/utils/api";
 import { NetworkId } from "@autonomys/auto-utils";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
 
 // export const runtime = 'edge'
-export async function GET(req: NextRequest) {
+export async function GET() {
   const data = await fetchApiData(NetworkId.MAINNET);
 
   if (!data) notFound();

@@ -68,8 +68,8 @@ const Boxes: FC = () => {
   const meshRef = useRef<THREE.InstancedMesh | null>(null);
   const prevRef = useRef<number | undefined>();
 
-  const tempObject = new THREE.Object3D();
-  const tempColor = new THREE.Color();
+  const tempObject = useMemo(() => new THREE.Object3D(), []);
+  const tempColor = useMemo(() => new THREE.Color(), []);
 
   const data = useMemo(
     () =>
@@ -87,7 +87,7 @@ const Boxes: FC = () => {
           .fill(0)
           .flatMap((_, i) => tempColor.set(data[i].color).toArray())
       ),
-    []
+    [data, tempColor]
   );
 
   useEffect(() => void (prevRef.current = hovered), [hovered]);
