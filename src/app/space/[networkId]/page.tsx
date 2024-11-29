@@ -1,7 +1,38 @@
 import { Footer } from "@/components/Footer";
 import { Scene } from "@/components/Scene";
+import {
+  images,
+  metadata as metadataConstants,
+  url,
+} from "@/constants/metadata";
 import { NetworkIdParam } from "@/types/app";
 import { capitalizeFirstLetter } from "@autonomys/auto-utils";
+import { Metadata } from "next";
+
+export const generateMetadata = ({
+  params: { networkId },
+}: {
+  params: NetworkIdParam;
+}): Metadata => ({
+  ...metadataConstants,
+  openGraph: {
+    ...metadataConstants.openGraph,
+    title: `Autonomys Network Info - ${capitalizeFirstLetter(networkId)}`,
+    url: `${url}/space/${networkId}`,
+    images: {
+      ...images,
+      url: `${url}/space/${networkId}/image`,
+    },
+  },
+  twitter: {
+    ...metadataConstants.twitter,
+    title: `Autonomys Network Info - ${capitalizeFirstLetter(networkId)}`,
+    images: {
+      ...images,
+      url: `${url}/space/${networkId}/image`,
+    },
+  },
+});
 
 export default async function Home({
   params: { networkId },

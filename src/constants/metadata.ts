@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-export const url = "https://localhost:3000";
+export const url = "https://ai3.info";
 
 const title = "AI3 Info";
 const description = "Get info on Autonomys Network";
