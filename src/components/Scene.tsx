@@ -237,7 +237,7 @@ const CurvedAutonomysLogo: React.FC<CurvedAutonomysLogoProps> = ({
 };
 
 export const Models: FC = (props: JSX.IntrinsicElements["group"]) => {
-  const [ring, cube] = useGLTF(["/models/ring.glb", "/models/cube.glb"]);
+  const [ring, cube] = useGLTF(["/models/ring.glb", "/models/cube.glb"], true);
   const { nodes: ringNodes, materials: ringMaterials } = ring as RingGLTFResult;
   const { nodes: cubeNodes, materials: cubeMaterials } = cube as CubeGLTFResult;
 
@@ -533,4 +533,4 @@ export const Scene: FC = () => {
   );
 };
 
-useGLTF.preload(["/models/ring.glb", "/models/cube.glb"], true, true);
+useGLTF.preload(["/models/ring.glb", "/models/cube.glb"], true);
