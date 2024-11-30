@@ -2,6 +2,7 @@
 
 import { NetworkIdParam } from "@/types/app";
 import { ApiData, DEFAULT_API_DATA, fetchApiData } from "@/utils/api";
+import { sendGAEvent } from "@next/third-parties/google";
 import {
   CameraControls,
   Loader,
@@ -247,6 +248,7 @@ export const Models: FC = (props: JSX.IntrinsicElements["group"]) => {
   const fetchData = useCallback(async () => {
     const data = await fetchApiData(networkId);
     setApiData(data);
+    sendGAEvent("event", "fetchData", { value: networkId });
   }, [networkId]);
 
   useEffect(() => {

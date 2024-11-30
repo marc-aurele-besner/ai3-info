@@ -20,6 +20,7 @@
   "dependencies": {
     "@autonomys/auto-consensus": "^1.0.10",
     "@autonomys/auto-utils": "^1.0.10",
+    "@next/third-parties": "^15.0.3",
     "@react-three/drei": "^9.114.6",
     "@react-three/fiber": "^8.17.10",
     "@types/three": "^0.169.0",
