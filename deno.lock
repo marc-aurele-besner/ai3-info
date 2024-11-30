@@ -3,6 +3,7 @@
   "specifiers": {
     "npm:@autonomys/auto-consensus@^1.0.10": "1.0.10",
     "npm:@autonomys/auto-utils@^1.0.10": "1.0.10_@polkadot+api@14.3.1__@polkadot+util@13.2.3__@polkadot+util-crypto@13.2.3___@polkadot+util@13.2.3___@polkadot+x-randomvalues@13.2.3____@polkadot+util@13.2.3____@polkadot+wasm-util@7.4.1_____@polkadot+util@13.2.3___@polkadot+wasm-util@7.4.1____@polkadot+util@13.2.3",
+    "npm:@next/third-parties@^15.0.3": "15.0.3_next@14.2.15__react@18.3.1__react-dom@18.3.1___react@18.3.1_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:@react-three/drei@^9.114.6": "9.117.3_@react-three+fiber@8.17.10__react@18.3.1__react-dom@18.3.1___react@18.3.1__three@0.169.0_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.169.0_@types+three@0.169.0_@types+react@18.3.12",
     "npm:@react-three/fiber@^8.17.10": "8.17.10_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.169.0",
     "npm:@types/node@20": "20.17.9",
@@ -167,6 +168,14 @@
     },
     "@next/swc-win32-x64-msvc@14.2.15": {
       "integrity": "sha512-SzqGbsLsP9OwKNUG9nekShTwhj6JSB9ZLMWQ8g1gG6hdE5gQLncbnbymrwy2yVmH9nikSLYRYxYMFu78Ggp7/g=="
+    },
+    "@next/third-parties@15.0.3_next@14.2.15__react@18.3.1__react-dom@18.3.1___react@18.3.1_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-T2NkBXLcgRY0cmE7jb/dSMXNK9D+yv1k+n0uBxwMBS9SEtOhuMvxiUPQRj5x4cFnsei6JECloJg88koMprKw0A==",
+      "dependencies": [
+        "next",
+        "react",
+        "third-party-capital"
+      ]
     },
     "@noble/curves@1.7.0": {
       "integrity": "sha512-UTMhXK9SeDhFJVrHeUJ5uZlI6ajXg10O6Ddocf9S6GjbSBVZsJo88HzKwXznNfGpMTRDyJkqMjNDPYgf0qFWnw==",
@@ -2857,6 +2866,9 @@
         "any-promise"
       ]
     },
+    "third-party-capital@1.0.20": {
+      "integrity": "sha512-oB7yIimd8SuGptespDAZnNkzIz+NWaJCu2RMsbs4Wmp9zSDUM8Nhi3s2OOcqYuv3mN4hitXc8DVx+LyUmbUDiA=="
+    },
     "three-mesh-bvh@0.7.8_three@0.169.0": {
       "integrity": "sha512-BGEZTOIC14U0XIRw3tO4jY7IjP7n7v24nv9JXS1CyeVRWOCkcOMhRnmENUjuV39gktAw4Ofhr0OvIAiTspQrrw==",
       "dependencies": [
@@ -3136,6 +3148,7 @@
       "dependencies": [
         "npm:@autonomys/auto-consensus@^1.0.10",
         "npm:@autonomys/auto-utils@^1.0.10",
+        "npm:@next/third-parties@^15.0.3",
         "npm:@react-three/drei@^9.114.6",
         "npm:@react-three/fiber@^8.17.10",
         "npm:@types/node@20",
