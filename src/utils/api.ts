@@ -1,10 +1,5 @@
-import {
-  blockchainSize,
-  blockNumber,
-  formatSpaceToDecimal,
-  spacePledged,
-} from "@autonomys/auto-consensus";
-import { activate, NetworkId } from "@autonomys/auto-utils";
+import { url } from "@/constants/metadata";
+import { NetworkId } from "@autonomys/auto-utils";
 
 export type ApiData = {
   blockHeight: number;
@@ -20,18 +15,9 @@ export const DEFAULT_API_DATA: ApiData = {
 
 export const fetchApiData = async (networkId: NetworkId): Promise<ApiData> => {
   try {
-    const api = await activate({ networkId });
-    const [blockHeight, total, size] = await Promise.all([
-      blockNumber(api),
-      spacePledged(api),
-      blockchainSize(api),
-    ]);
-    await api.disconnect();
-    return {
-      blockHeight,
-      spacePledged: formatSpaceToDecimal(parseInt(total.toString())),
-      blockchainSize: formatSpaceToDecimal(parseInt(size.toString())),
-    };
+    return await fetch(`${url}/api/data/${networkId}`).then((res) =>
+      res.json()
+    );
   } catch (error) {
     console.error("Error fetching data:", error);
     return {
