@@ -22,6 +22,7 @@ export const generateMetadata = ({
     images: {
       ...images,
       url: `${url}/space/${networkId}/image`,
+      secureUrl: `${url}/space/${networkId}/image`,
     },
   },
   twitter: {
@@ -30,6 +31,7 @@ export const generateMetadata = ({
     images: {
       ...images,
       url: `${url}/space/${networkId}/image`,
+      secureUrl: `${url}/space/${networkId}/image`,
     },
   },
 });
