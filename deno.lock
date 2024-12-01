@@ -10,6 +10,7 @@
     "npm:@types/react-dom@18": "18.3.1",
     "npm:@types/react@18": "18.3.12",
     "npm:@types/three@0.169": "0.169.0",
+    "npm:@vercel/kv@3": "3.0.0",
     "npm:eslint-config-next@14.2.15": "14.2.15_eslint@8.57.1_typescript@5.7.2_@typescript-eslint+parser@8.16.0__eslint@8.57.1__typescript@5.7.2_eslint-plugin-import@2.31.0__eslint@8.57.1",
     "npm:eslint@8": "8.57.1",
     "npm:next@14.2.15": "14.2.15_react@18.3.1_react-dom@18.3.1__react@18.3.1",
@@ -893,6 +894,12 @@
     "@ungap/structured-clone@1.2.0": {
       "integrity": "sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ=="
     },
+    "@upstash/redis@1.34.3": {
+      "integrity": "sha512-VT25TyODGy/8ljl7GADnJoMmtmJ1F8d84UXfGonRRF8fWYJz7+2J6GzW+a6ETGtk4OyuRTt7FRSvFG5GvrfSdQ==",
+      "dependencies": [
+        "crypto-js"
+      ]
+    },
     "@use-gesture/core@10.3.1": {
       "integrity": "sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw=="
     },
@@ -901,6 +908,12 @@
       "dependencies": [
         "@use-gesture/core",
         "react"
+      ]
+    },
+    "@vercel/kv@3.0.0": {
+      "integrity": "sha512-pKT8fRnfyYk2MgvyB6fn6ipJPCdfZwiKDdw7vB+HL50rjboEBHDVBEcnwfkEpVSp2AjNtoaOUH7zG+bVC/rvSg==",
+      "dependencies": [
+        "@upstash/redis"
       ]
     },
     "@webgpu/types@0.1.51": {
@@ -1180,6 +1193,9 @@
         "shebang-command",
         "which"
       ]
+    },
+    "crypto-js@4.2.0": {
+      "integrity": "sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q=="
     },
     "cssesc@3.0.0": {
       "integrity": "sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg=="
@@ -3155,6 +3171,7 @@
         "npm:@types/react-dom@18",
         "npm:@types/react@18",
         "npm:@types/three@0.169",
+        "npm:@vercel/kv@3",
         "npm:eslint-config-next@14.2.15",
         "npm:eslint@8",
         "npm:next@14.2.15",

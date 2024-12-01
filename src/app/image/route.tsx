@@ -1,12 +1,12 @@
 import { url } from "@/constants/metadata";
-import { ApiData, fetchApiData } from "@/utils/api";
+import { ApiData } from "@/utils/api";
 import { NetworkId } from "@autonomys/auto-utils";
+import { kv } from "@vercel/kv";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 
-// export const runtime = 'edge'
 export async function GET() {
-  const data = await fetchApiData(NetworkId.MAINNET);
+  const data = (await kv.get(`last-data-${NetworkId.MAINNET}`)) as ApiData;
 
   if (!data) notFound();
 
