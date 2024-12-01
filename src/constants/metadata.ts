@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-export const url = "https://ai3.info";
+export const url = "http://localhost:3000";
 
 const title = "AI3 Info";
 const description = "Get info on Autonomys Network";
@@ -10,7 +10,7 @@ const twitter = "@marcaureleb";
 
 export const images = {
   url: url + "/images/share.png",
-  secureUrl: url + "image/png",
+  secureUrl: url + "/image",
   width: 900,
   height: 600,
   alt: title,
