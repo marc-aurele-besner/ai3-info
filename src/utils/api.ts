@@ -15,9 +15,7 @@ export const DEFAULT_API_DATA: ApiData = {
 
 export const fetchApiData = async (networkId: NetworkId): Promise<ApiData> => {
   try {
-    return await fetch(`${url}/api/data/${networkId}`).then((res) =>
-      res.json()
-    );
+    return await fetch(`/api/data/${networkId}`).then((res) => res.json());
   } catch (error) {
     console.error("Error fetching data:", error);
     return {

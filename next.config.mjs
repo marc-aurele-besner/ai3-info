@@ -14,6 +14,9 @@ const nextConfig = {
 
     return config;
   },
+  images: {
+    domains: ["ai3.info"],
+  },
 };
 
 export default nextConfig;
