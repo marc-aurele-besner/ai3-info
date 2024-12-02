@@ -1,5 +1,4 @@
-import { url } from "@/constants/metadata";
-import { NetworkId } from "@autonomys/auto-utils";
+import type { NetworkId } from "@autonomys/auto-utils";
 
 export type ApiData = {
   blockHeight: number;
