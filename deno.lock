@@ -1,8 +1,8 @@
 {
   "version": "4",
   "specifiers": {
-    "npm:@autonomys/auto-consensus@^1.0.11": "1.0.11",
-    "npm:@autonomys/auto-utils@^1.0.11": "1.0.11_@polkadot+api@14.3.1__@polkadot+util@13.2.3__@polkadot+util-crypto@13.2.3___@polkadot+util@13.2.3___@polkadot+x-randomvalues@13.2.3____@polkadot+util@13.2.3____@polkadot+wasm-util@7.4.1_____@polkadot+util@13.2.3___@polkadot+wasm-util@7.4.1____@polkadot+util@13.2.3",
+    "npm:@autonomys/auto-consensus@^1.1.4": "1.1.4",
+    "npm:@autonomys/auto-utils@^1.1.4": "1.1.4_@polkadot+api@14.3.1__@polkadot+util@13.2.3__@polkadot+util-crypto@13.2.3___@polkadot+util@13.2.3___@polkadot+x-randomvalues@13.2.3____@polkadot+util@13.2.3____@polkadot+wasm-util@7.4.1_____@polkadot+util@13.2.3___@polkadot+wasm-util@7.4.1____@polkadot+util@13.2.3",
     "npm:@next/third-parties@^15.0.3": "15.0.3_next@14.2.15__react@18.3.1__react-dom@18.3.1___react@18.3.1_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:@react-three/drei@^9.114.6": "9.117.3_@react-three+fiber@8.17.10__react@18.3.1__react-dom@18.3.1___react@18.3.1__three@0.169.0_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.169.0_@types+three@0.169.0_@types+react@18.3.12",
     "npm:@react-three/fiber@^8.17.10": "8.17.10_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.169.0",
@@ -28,14 +28,14 @@
     "@alloc/quick-lru@5.2.0": {
       "integrity": "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="
     },
-    "@autonomys/auto-consensus@1.0.11": {
-      "integrity": "sha512-4DWwcgSidhT+d1RM6kV4rlwApN20YJm4BGdGol+beSOBUyLLc1TDDs+VUMLVoZsqada3BWj0asTU+WckdcIADQ==",
+    "@autonomys/auto-consensus@1.1.4": {
+      "integrity": "sha512-tcd2vXysgX89PLSfjbakYeswuwO03ibHZbsrCP6G2fYog9d46u3iduBstTPOZkC7tVcfNVYm98WfKPLf8odWnQ==",
       "dependencies": [
         "@autonomys/auto-utils"
       ]
     },
-    "@autonomys/auto-utils@1.0.11_@polkadot+api@14.3.1__@polkadot+util@13.2.3__@polkadot+util-crypto@13.2.3___@polkadot+util@13.2.3___@polkadot+x-randomvalues@13.2.3____@polkadot+util@13.2.3____@polkadot+wasm-util@7.4.1_____@polkadot+util@13.2.3___@polkadot+wasm-util@7.4.1____@polkadot+util@13.2.3": {
-      "integrity": "sha512-10UfxGQ3n7YUZuSRD67MfU7nK0Tz8fs/Oramz056Tsq1CiY9EmZZ6x8BkQLJ8qs/ZpjLQ6RrdBF0BEGs2qCkvg==",
+    "@autonomys/auto-utils@1.1.4_@polkadot+api@14.3.1__@polkadot+util@13.2.3__@polkadot+util-crypto@13.2.3___@polkadot+util@13.2.3___@polkadot+x-randomvalues@13.2.3____@polkadot+util@13.2.3____@polkadot+wasm-util@7.4.1_____@polkadot+util@13.2.3___@polkadot+wasm-util@7.4.1____@polkadot+util@13.2.3": {
+      "integrity": "sha512-DGf3nIC68JthdQNxhUwQlM/a6FMmHzOkni/FSTgddlZTFEHFG8YLgCmgxfx9Ctw6qacn6gACV35nEZJGgjFf9g==",
       "dependencies": [
         "@polkadot/api",
         "@polkadot/extension-dapp",
@@ -698,8 +698,8 @@
     "@substrate/connect-extension-protocol@2.2.1": {
       "integrity": "sha512-GoafTgm/Jey9E4Xlj4Z5ZBt/H4drH2CNq8VrAro80rtoznrXnFDNVivLQzZN0Xaj2g8YXSn9pC9Oc9IovYZJXw=="
     },
-    "@substrate/connect-known-chains@1.8.0": {
-      "integrity": "sha512-sl7WfeDgnZuPvUl5Xw0XIziOTe8rEBJ3uugyDETGnafxEbjYMv5aJL0ilq5djhnQ7l9OuMJCN3Ckved2yINeeQ=="
+    "@substrate/connect-known-chains@1.8.1": {
+      "integrity": "sha512-WkqXvuLWL1g136nxAoGkclybsVpo8claHeBl/8iA99ECAk4pWLtoCh8PoYrFEE1HfY4rk+A0krPybDlcDa/G4g=="
     },
     "@substrate/connect@0.8.11_smoldot@2.0.26": {
       "integrity": "sha512-ofLs1PAO9AtDdPbdyTYj217Pe+lBfTLltdHDs3ds8no0BseoLeAGxpz1mHfi7zB4IxI3YyAiLjH6U8cw4pj4Nw==",
@@ -3162,8 +3162,8 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@autonomys/auto-consensus@^1.0.11",
-        "npm:@autonomys/auto-utils@^1.0.11",
+        "npm:@autonomys/auto-consensus@^1.1.4",
+        "npm:@autonomys/auto-utils@^1.1.4",
         "npm:@next/third-parties@^15.0.3",
         "npm:@react-three/drei@^9.114.6",
         "npm:@react-three/fiber@^8.17.10",
