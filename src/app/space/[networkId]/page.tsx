@@ -1,5 +1,5 @@
 import { Footer } from "@/components/Footer";
-import { Scene } from "@/components/Scene";
+import dynamic from "next/dynamic";
 import {
   images,
   metadata as metadataConstants,
@@ -34,6 +34,9 @@ export const generateMetadata = ({
       secureUrl: `${url}/space/${networkId}/image`,
     },
   },
+  alternates: {
+    canonical: `${url}/space/${networkId}`,
+  },
 });
 
 export default async function Home({
@@ -41,6 +44,12 @@ export default async function Home({
 }: {
   params: NetworkIdParam;
 }) {
+  const Scene = dynamic(() => import("@/components/Scene").then((m) => m.Scene), {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center w-full h-[60vh] text-[#576EB2]">Loading 3D scene...</div>
+    ),
+  });
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen pt-8 bg-black text-[#576EB2]">
       <h1 className="text-4xl font-bold mb-4">
