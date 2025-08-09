@@ -5,6 +5,8 @@ import { kv } from "@vercel/kv";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
+export const runtime = "edge";
+
 export async function GET(
   req: NextRequest,
   params: { params: NetworkIdParam }
@@ -19,7 +21,7 @@ export async function GET(
   }
  
    try {
-     return new ImageResponse(
+     const image = new ImageResponse(
 <Screen
         data={
           data ?? {
@@ -34,6 +36,14 @@ export async function GET(
         height: 630,
       }
     );
+    type WithHeaders = ImageResponse & {
+      headers?: { set?: (key: string, value: string) => void };
+    };
+    (image as WithHeaders).headers?.set?.(
+      "Cache-Control",
+      "public, s-maxage=60, stale-while-revalidate=120"
+    );
+    return image;
   } catch (e) {
     console.error("Error in image route", e);
     return new ImageResponse(

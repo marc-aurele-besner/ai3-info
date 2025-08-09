@@ -14,6 +14,14 @@ export async function GET(
   params: { params: NetworkIdParam }
 ) {
   try {
+    const { networkId } = params.params;
+    if (!networkId) {
+      return NextResponse.json(
+        { error: "Missing networkId" },
+        { status: 400 }
+      );
+    }
+
     const api = await activate({ networkId: params.params.networkId });
     const [blockHeight, total, size] = await Promise.all([
       blockNumber(api),
@@ -34,21 +42,31 @@ export async function GET(
       console.warn("KV set failed:", cacheError);
     }
 
-    return NextResponse.json(payload);
+    const res = NextResponse.json(payload);
+    res.headers.set("Cache-Control", "s-maxage=30, stale-while-revalidate=60");
+    return res;
   } catch (error) {
     console.error("Error fetching data:", error);
     try {
       const cached = await kv.get(`last-data-${params.params.networkId}`);
       if (cached) {
-        return NextResponse.json(cached);
+        const res = NextResponse.json(cached);
+        res.headers.set(
+          "Cache-Control",
+          "s-maxage=60, stale-while-revalidate=120"
+        );
+        return res;
       }
     } catch (cacheReadError) {
       console.warn("KV get failed:", cacheReadError);
     }
-    return NextResponse.json({
-      blockHeight: 0,
-      spacePledged: "Error fetching data",
-      blockchainSize: "Error fetching data",
-    });
+    return NextResponse.json(
+      {
+        blockHeight: 0,
+        spacePledged: "Error fetching data",
+        blockchainSize: "Error fetching data",
+      },
+      { status: 500 }
+    );
   }
 }
