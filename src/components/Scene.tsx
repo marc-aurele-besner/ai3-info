@@ -2,6 +2,7 @@
 
 import { NetworkIdParam } from "@/types/app";
 import { ApiData, DEFAULT_API_DATA, fetchApiData } from "@/utils/api";
+import { useIsMobile, usePrefersReducedMotion } from "@/utils/hooks";
 import { sendGAEvent } from "@next/third-parties/google";
 import {
   CameraControls,
@@ -64,6 +65,7 @@ const CUBE_SCALE = 0.2;
 const CUBE_SPACING = 0.2;
 
 const Boxes: FC = () => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [hovered, set] = useState<number | undefined>();
 
   const meshRef = useRef<THREE.InstancedMesh | null>(null);
@@ -94,6 +96,7 @@ const Boxes: FC = () => {
   useEffect(() => void (prevRef.current = hovered), [hovered]);
 
   useFrame((state) => {
+    if (prefersReducedMotion) return;
     const time = state.clock.getElapsedTime();
     meshRef.current!.rotation.x = Math.sin(time / 4);
     meshRef.current!.rotation.y = Math.sin(time / 2);
@@ -341,16 +344,18 @@ export const Models: FC = (props: JSX.IntrinsicElements["group"]) => {
 };
 
 export const Scene: FC = () => {
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = usePrefersReducedMotion();
   return (
     <>
       <Suspense fallback={<span>loading...</span>}>
         <Canvas
           camera={{
-            position: [100, 100, 60],
-            fov: 5,
+            position: isMobile ? [120, 120, 90] : [100, 100, 60],
+            fov: isMobile ? 6 : 5,
           }}
         >
-          <Stars count={50000} />
+          <Stars count={prefersReducedMotion ? 5000 : 50000} />
           <ambientLight intensity={Math.PI / 1.5} />
           {/* Key Top Light */}
           <spotLight

@@ -46,6 +46,19 @@ AI3 Info is a network explorer and visualization tool that allows users to:
 - Yarn or npm
 - WebGL-compatible browser
 
+### Environment variables
+
+Create a `.env.local` (or use deployment env) with:
+
+```
+NEXT_PUBLIC_URL=https://www.ai3.info
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+KV_REST_API_URL=... # server-side only
+KV_REST_API_TOKEN=... # server-side only
+```
+
+See `.env.example` for a template.
+
 ### Installation
 
 1. Clone the repository:
@@ -151,6 +164,11 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 ## Deployment
 
 This project is deployed on [Vercel](https://vercel.com) and can be accessed at [ai3.info](https://www.ai3.info/).
+
+This app now includes:
+- `robots.txt` at `/robots.txt`
+- `sitemap.xml` at `/sitemap.xml`
+- Open Graph images at `/image` and `/space/[networkId]/image`
 
 For manual deployment:
 

@@ -2,7 +2,6 @@ import { url } from "@/constants/metadata";
 import { NetworkIdParam } from "@/types/app";
 import { ApiData } from "@/utils/api";
 import { kv } from "@vercel/kv";
-import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
@@ -10,20 +9,39 @@ export async function GET(
   req: NextRequest,
   params: { params: NetworkIdParam }
 ) {
-  const data = (await kv.get(
-    `last-data-${params.params.networkId}`
-  )) as ApiData;
-
-  if (!data) notFound();
-
+  let data: ApiData | null = null;
   try {
-    return new ImageResponse(<Screen data={data} />, {
-      width: 1200,
-      height: 630,
-    });
+    data = (await kv.get(
+      `last-data-${params.params.networkId}`
+    )) as ApiData | null;
+    } catch {
+    // Ignore KV errors and fall back to placeholders
+  }
+ 
+   try {
+     return new ImageResponse(
+<Screen
+        data={
+          data ?? {
+            blockHeight: 0,
+            spacePledged: "loading...",
+            blockchainSize: "loading...",
+          }
+        }
+      />,
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
   } catch (e) {
     console.error("Error in image route", e);
-    notFound();
+    return new ImageResponse(
+      <Screen
+        data={{ blockHeight: 0, spacePledged: "N/A", blockchainSize: "N/A" }}
+      />,
+      { width: 1200, height: 630 }
+    );
   }
 }
 

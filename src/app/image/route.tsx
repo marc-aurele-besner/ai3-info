@@ -2,22 +2,42 @@ import { url } from "@/constants/metadata";
 import { ApiData } from "@/utils/api";
 import { NetworkId } from "@autonomys/auto-utils";
 import { kv } from "@vercel/kv";
-import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 
-export async function GET() {
-  const data = (await kv.get(`last-data-${NetworkId.MAINNET}`)) as ApiData;
+export const dynamic = "force-dynamic";
 
-  if (!data) notFound();
+export async function GET() {
+  let data: ApiData | null = null;
+  try {
+    data = (await kv.get(`last-data-${NetworkId.MAINNET}`)) as ApiData | null;
+  } catch {
+    // No KV during build/local or KV error. Fall back to placeholders.
+  }
 
   try {
-    return new ImageResponse(<Screen data={data} />, {
-      width: 1200,
-      height: 630,
-    });
+    return new ImageResponse(
+      <Screen
+        data={
+          data ?? {
+            blockHeight: 0,
+            spacePledged: "loading...",
+            blockchainSize: "loading...",
+          }
+        }
+      />,
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
   } catch (e) {
     console.error("Error in image route", e);
-    notFound();
+    return new ImageResponse(
+      <Screen
+        data={{ blockHeight: 0, spacePledged: "N/A", blockchainSize: "N/A" }}
+      />,
+      { width: 1200, height: 630 }
+    );
   }
 }
 

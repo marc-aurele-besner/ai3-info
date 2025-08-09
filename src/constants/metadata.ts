@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 
-export const url = process.env.NEXT_PUBLIC_URL || "http://ai3.info";
+export const url =
+  process.env.NEXT_PUBLIC_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
 const title = "AI3 Info";
 const description = "Get info on Autonomys Network";
@@ -9,10 +11,10 @@ const organization = "Marc-Aurèle Besner";
 const twitter = "@marcaureleb";
 
 export const images = {
-  url: url + "/images/share.png",
-  secureUrl: url + "/image",
-  width: 900,
-  height: 600,
+  url: url + "/images/ai3-info-og.png",
+  secureUrl: url + "/images/ai3-info-og.png",
+  width: 1200,
+  height: 630,
   alt: title,
 };
 
@@ -23,10 +25,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   metadataBase: new URL(url),
   keywords: keywords ? keywords.split(",") : [],
-  authors: {
-    name: organization,
-    url: "https://marcaureleb.com",
-  },
+  authors: [
+    {
+      name: organization,
+      url: "https://marcaureleb.com",
+    },
+  ],
   publisher: organization,
   robots: { index: true, follow: true },
   openGraph: {

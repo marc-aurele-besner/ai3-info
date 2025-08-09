@@ -21,18 +21,30 @@ export async function GET(
       blockchainSize(api),
     ]);
     await api.disconnect();
-    await kv.set(`last-data-${params.params.networkId}`, {
+
+    const payload = {
       blockHeight,
       spacePledged: formatSpaceToDecimal(parseInt(total.toString())),
       blockchainSize: formatSpaceToDecimal(parseInt(size.toString())),
-    });
-    return NextResponse.json({
-      blockHeight,
-      spacePledged: formatSpaceToDecimal(parseInt(total.toString())),
-      blockchainSize: formatSpaceToDecimal(parseInt(size.toString())),
-    });
+    };
+
+    try {
+      await kv.set(`last-data-${params.params.networkId}`, payload);
+    } catch (cacheError) {
+      console.warn("KV set failed:", cacheError);
+    }
+
+    return NextResponse.json(payload);
   } catch (error) {
     console.error("Error fetching data:", error);
+    try {
+      const cached = await kv.get(`last-data-${params.params.networkId}`);
+      if (cached) {
+        return NextResponse.json(cached);
+      }
+    } catch (cacheReadError) {
+      console.warn("KV get failed:", cacheReadError);
+    }
     return NextResponse.json({
       blockHeight: 0,
       spacePledged: "Error fetching data",
