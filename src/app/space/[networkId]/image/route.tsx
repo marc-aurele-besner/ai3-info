@@ -1,56 +1,73 @@
-import { url } from "@/constants/metadata";
-import { NetworkIdParam } from "@/types/app";
-import { ApiData } from "@/utils/api";
 import { kv } from "@vercel/kv";
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+
+export const runtime = "edge";
+
+type ImageData = {
+  blockHeight: number;
+  spacePledged: string;
+  blockchainSize: string;
+};
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
 export async function GET(
   req: NextRequest,
-  params: { params: NetworkIdParam }
+  params: { params: { networkId: string } }
 ) {
-  let data: ApiData | null = null;
+  let data: ImageData | null = null;
   try {
     data = (await kv.get(
       `last-data-${params.params.networkId}`
-    )) as ApiData | null;
+    )) as ImageData | null;
     } catch {
     // Ignore KV errors and fall back to placeholders
   }
  
    try {
+     const image = new ImageResponse(
+       <Screen
+         data={
+           data ?? {
+             blockHeight: 0,
+             spacePledged: "loading...",
+             blockchainSize: "loading...",
+           }
+         }
+       />,
+       {
+         width: 1200,
+         height: 630,
+       }
+     );
+     type WithHeaders = ImageResponse & {
+       headers?: { set?: (key: string, value: string) => void };
+     };
+     (image as WithHeaders).headers?.set?.(
+       "Cache-Control",
+       "public, s-maxage=60, stale-while-revalidate=120"
+     );
+     return image;
+   } catch (e) {
+     console.error("Error in image route", e);
      return new ImageResponse(
-<Screen
-        data={
-          data ?? {
-            blockHeight: 0,
-            spacePledged: "loading...",
-            blockchainSize: "loading...",
-          }
-        }
-      />,
-      {
-        width: 1200,
-        height: 630,
-      }
-    );
-  } catch (e) {
-    console.error("Error in image route", e);
-    return new ImageResponse(
-      <Screen
-        data={{ blockHeight: 0, spacePledged: "N/A", blockchainSize: "N/A" }}
-      />,
-      { width: 1200, height: 630 }
-    );
-  }
+       <Screen
+         data={{ blockHeight: 0, spacePledged: "N/A", blockchainSize: "N/A" }}
+       />,
+       { width: 1200, height: 630 }
+     );
+   }
 }
 
-function Screen({ data }: { data: ApiData }) {
+function Screen({ data }: { data: ImageData }) {
   return (
     <div tw="relative w-full h-full flex flex-col items-center justify-between">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={url + "/images/ai3-info-og-empty.png"}
+        src={baseUrl + "/images/ai3-info-og-empty.png"}
         tw="w-[1200px] h-[630px]"
         alt={"Background Color"}
         width={1200}

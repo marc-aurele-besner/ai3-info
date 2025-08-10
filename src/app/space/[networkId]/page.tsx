@@ -1,13 +1,14 @@
 import { Footer } from "@/components/Footer";
-import dynamic from "next/dynamic";
 import {
   images,
   metadata as metadataConstants,
   url,
 } from "@/constants/metadata";
-import { NetworkIdParam } from "@/types/app";
-import { capitalizeFirstLetter } from "@autonomys/auto-utils";
-import { Metadata } from "next";
+import type { NetworkIdParam } from "@/types/app";
+import { capitalizeFirstLetter, networks } from "@autonomys/auto-utils";
+import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+import { notFound } from "next/navigation";
 
 export const generateMetadata = ({
   params: { networkId },
@@ -39,11 +40,22 @@ export const generateMetadata = ({
   },
 });
 
+export async function generateStaticParams() {
+  return networks
+    .filter((n) => n.isLocalhost === undefined)
+    .map((n) => ({ networkId: n.id }));
+}
+
 export default async function Home({
   params: { networkId },
 }: {
   params: NetworkIdParam;
 }) {
+  const supported = networks.some((n) => n.id === networkId && n.isLocalhost === undefined);
+  if (!supported) {
+    notFound();
+  }
+
   const Scene = dynamic(() => import("@/components/Scene").then((m) => m.Scene), {
     ssr: false,
     loading: () => (

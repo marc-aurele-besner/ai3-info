@@ -11,11 +11,15 @@
     "name": "Marc-Aurele Besner",
     "url": "https://github.com/marc-aurele-besner"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@autonomys/auto-consensus": "^1.1.4",

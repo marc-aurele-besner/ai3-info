@@ -1,6 +1,6 @@
-import type { MetadataRoute } from "next";
 import { url } from "@/constants/metadata";
 import { networks } from "@autonomys/auto-utils";
+import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

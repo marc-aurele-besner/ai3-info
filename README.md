@@ -42,7 +42,6 @@ AI3 Info is a network explorer and visualization tool that allows users to:
 ### Prerequisites
 
 - Node.js 18+
-- Deno 2
 - Yarn or npm
 - WebGL-compatible browser
 
@@ -71,8 +70,6 @@ cd ai3-info
 2. Install dependencies:
 
 ```bash
-deno install
-# or
 yarn install
 # or
 npm install
@@ -81,8 +78,6 @@ npm install
 3. Start the development server:
 
 ```bash
-deno task dev
-
 yarn dev
 # or
 npm run dev

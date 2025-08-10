@@ -115,15 +115,13 @@ const Boxes: FC = () => {
             Math.sin(y / 4 + time) +
             Math.sin(z / 4 + time);
           tempObject.rotation.z = tempObject.rotation.y * 2;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (hovered !== (prevRef as any).Current) {
+          if (hovered !== prevRef.current) {
             (id === hovered
               ? tempColor.setRGB(10, 10, 10)
               : tempColor.set(data[id].color)
             ).toArray(colorArray, id * 3);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (meshRef as any).current.geometry.attributes.color.needsUpdate =
-              true;
+            (meshRef as any).current.geometry.attributes.color.needsUpdate = true;
           }
           tempObject.updateMatrix();
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -354,8 +352,9 @@ export const Scene: FC = () => {
             position: isMobile ? [120, 120, 90] : [100, 100, 60],
             fov: isMobile ? 6 : 5,
           }}
+          dpr={isMobile ? [1, 1.3] : [1, 1.7]}
         >
-          <Stars count={prefersReducedMotion ? 5000 : 50000} />
+          <Stars count={prefersReducedMotion ? 2000 : isMobile ? 15000 : 30000} />
           <ambientLight intensity={Math.PI / 1.5} />
           {/* Key Top Light */}
           <spotLight
