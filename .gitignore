@@ -6,7 +6,9 @@
 /out/
 
 # local env files
-.env*
+.env
+.env.local
+.env.*.local
 
 # vercel
 .vercel

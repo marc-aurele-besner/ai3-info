@@ -5,7 +5,7 @@ import {
   formatSpaceToDecimal,
   spacePledged,
 } from "@autonomys/auto-consensus";
-import { activate } from "@autonomys/auto-utils";
+import { activate, networks } from "@autonomys/auto-utils";
 import { kv } from "@vercel/kv";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -22,7 +22,17 @@ export async function GET(
       );
     }
 
-    const api = await activate({ networkId: params.params.networkId });
+    const supported = networks.some(
+      (n) => n.id === networkId && n.isLocalhost === undefined
+    );
+    if (!supported) {
+      return NextResponse.json(
+        { error: `Unsupported networkId: ${networkId}` },
+        { status: 400 }
+      );
+    }
+
+    const api = await activate({ networkId });
     const [blockHeight, total, size] = await Promise.all([
       blockNumber(api),
       spacePledged(api),
@@ -37,7 +47,7 @@ export async function GET(
     };
 
     try {
-      await kv.set(`last-data-${params.params.networkId}`, payload);
+      await kv.set(`last-data-${networkId}`, payload);
     } catch (cacheError) {
       console.warn("KV set failed:", cacheError);
     }
