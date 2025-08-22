@@ -245,17 +245,31 @@ export const Models: FC = (props: JSX.IntrinsicElements["group"]) => {
 
   const { networkId } = useParams<NetworkIdParam>();
   const [apiData, setApiData] = useState<ApiData>(DEFAULT_API_DATA);
+  const inFlightRef = useRef<boolean>(false);
+  const lastPayloadRef = useRef<ApiData | null>(null);
 
   const fetchData = useCallback(async () => {
-    const data = await fetchApiData(networkId);
-    setApiData(data);
-    sendGAEvent("event", "fetchData", { value: networkId });
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    try {
+      const data = await fetchApiData(networkId);
+      setApiData(data);
+      const last = lastPayloadRef.current;
+      if (!last || last.blockHeight !== data.blockHeight) {
+        sendGAEvent("event", "fetchData", { value: networkId });
+      }
+      lastPayloadRef.current = data;
+    } finally {
+      inFlightRef.current = false;
+    }
   }, [networkId]);
 
   useEffect(() => {
+    // reset last payload when network changes
+    lastPayloadRef.current = null;
     fetchData();
-    const interval = setInterval(fetchData, 10000); // Update every 10 seconds
-    return () => clearInterval(interval); // Cleanup on unmount
+    const interval = setInterval(fetchData, 10000);
+    return () => clearInterval(interval);
   }, [fetchData]);
 
   return (
