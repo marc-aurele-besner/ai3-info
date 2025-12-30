@@ -22,8 +22,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@autonomys/auto-consensus": "^1.1.4",
-    "@autonomys/auto-utils": "^1.1.4",
+    "@autonomys/auto-consensus": "^1.6.5",
+    "@autonomys/auto-utils": "^1.6.5",
     "@next/third-parties": "^15.0.3",
     "@react-three/drei": "^9.114.6",
     "@react-three/fiber": "^8.17.10",
