@@ -21,12 +21,20 @@ export default function Error({ error, reset }: ErrorPageProps) {
         <p className="text-lg mb-8 text-center text-gray-300">
           {error.message || "An unexpected error occurred"}
         </p>
-        <button
-          onClick={reset}
-          className="px-6 py-3 border border-[#576EB2] text-[#576EB2] rounded hover:bg-[#576EB2] hover:text-black transition duration-300"
-        >
-          Try again
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            onClick={reset}
+            className="px-6 py-3 border border-[#576EB2] text-[#576EB2] rounded hover:bg-[#576EB2] hover:text-black transition duration-300"
+          >
+            Try again
+          </button>
+          <a
+            href="/"
+            className="px-6 py-3 border border-[#576EB2] text-[#576EB2] rounded hover:bg-[#576EB2] hover:text-black transition duration-300"
+          >
+            Go back home
+          </a>
+        </div>
       </div>
     </div>
   );
