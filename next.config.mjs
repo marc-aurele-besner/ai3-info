@@ -15,7 +15,13 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ["ai3.info"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ai3.info",
+        pathname: "/**",
+      },
+    ],
   },
   async headers() {
     return [
