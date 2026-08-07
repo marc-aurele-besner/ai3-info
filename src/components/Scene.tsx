@@ -12,6 +12,7 @@ import {
   useGLTF,
 } from "@react-three/drei";
 import { Canvas, extend, useFrame, useLoader } from "@react-three/fiber";
+import type { ThreeElements } from "@react-three/fiber";
 import { useParams } from "next/navigation";
 import {
   FC,
@@ -69,7 +70,7 @@ const Boxes: FC = () => {
   const [hovered, set] = useState<number | undefined>();
 
   const meshRef = useRef<THREE.InstancedMesh | null>(null);
-  const prevRef = useRef<number | undefined>();
+  const prevRef = useRef<number | undefined>(undefined);
 
   const tempObject = useMemo(() => new THREE.Object3D(), []);
   const tempColor = useMemo(() => new THREE.Color(), []);
@@ -238,10 +239,12 @@ const CurvedAutonomysLogo: React.FC<CurvedAutonomysLogoProps> = ({
   );
 };
 
-export const Models: FC = (props: JSX.IntrinsicElements["group"]) => {
+export const Models: FC = (props: ThreeElements["group"]) => {
   const [ring, cube] = useGLTF(["/models/ring.glb", "/models/cube.glb"]);
-  const { nodes: ringNodes, materials: ringMaterials } = ring as RingGLTFResult;
-  const { nodes: cubeNodes, materials: cubeMaterials } = cube as CubeGLTFResult;
+  const { nodes: ringNodes, materials: ringMaterials } =
+    ring as unknown as RingGLTFResult;
+  const { nodes: cubeNodes, materials: cubeMaterials } =
+    cube as unknown as CubeGLTFResult;
 
   const { networkId } = useParams<NetworkIdParam>();
   const [apiData, setApiData] = useState<ApiData>(DEFAULT_API_DATA);

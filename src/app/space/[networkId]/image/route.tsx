@@ -16,13 +16,12 @@ const baseUrl =
 
 export async function GET(
   req: NextRequest,
-  params: { params: { networkId: string } }
+  { params }: { params: Promise<{ networkId: string }> }
 ) {
+  const { networkId } = await params;
   let data: ImageData | null = null;
   try {
-    data = (await kv.get(
-      `last-data-${params.params.networkId}`
-    )) as ImageData | null;
+    data = (await kv.get(`last-data-${networkId}`)) as ImageData | null;
     } catch {
     // Ignore KV errors and fall back to placeholders
   }

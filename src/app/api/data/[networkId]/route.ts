@@ -11,10 +11,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  params: { params: NetworkIdParam }
+  { params }: { params: Promise<{ networkId: string }> }
 ) {
+  const { networkId } = await params;
   try {
-    const { networkId } = params.params;
     if (!networkId) {
       return NextResponse.json(
         { error: "Missing networkId" },
@@ -32,7 +32,9 @@ export async function GET(
       );
     }
 
-    const api = await activate({ networkId });
+    const api = await activate({
+      networkId: networkId as NetworkIdParam["networkId"],
+    });
     const [blockHeight, total, size] = await Promise.all([
       blockNumber(api),
       spacePledged(api),
@@ -58,7 +60,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching data:", error);
     try {
-      const cached = await kv.get(`last-data-${params.params.networkId}`);
+      const cached = await kv.get(`last-data-${networkId}`);
       if (cached) {
         const res = NextResponse.json(cached);
         res.headers.set(
