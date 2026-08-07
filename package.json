@@ -26,7 +26,7 @@
     "@autonomys/auto-utils": "^1.6.9",
     "@next/third-parties": "^15.0.3",
     "@react-three/drei": "^9.114.6",
-    "@react-three/fiber": "^8.17.10",
+    "@react-three/fiber": "^9.0.0",
     "@types/three": "^0.185.0",
     "@vercel/kv": "^3.0.0",
     "next": "14.2.35",
