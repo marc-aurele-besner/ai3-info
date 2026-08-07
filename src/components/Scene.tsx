@@ -215,8 +215,8 @@ const CurvedAutonomysLogo: React.FC<CurvedAutonomysLogoProps> = ({
       scale={[-scale, scale, scale]}
       rotation={[0, 0, Math.PI]}
     >
-      {svgData.paths.map((path: THREE.ShapePath, pathIndex: number) =>
-        path.toShapes(true).map((shape: THREE.Shape, shapeIndex: number) => {
+      {svgData.paths.map((path, pathIndex) =>
+        path.toShapes().map((shape, shapeIndex) => {
           const angle =
             -angleRange / 2 +
             (pathIndex / svgData.paths.length - 0.5) * angleRange;
