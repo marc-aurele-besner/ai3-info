@@ -159,7 +159,7 @@ test("WebGL failure preserves the data and calculator", async ({ page }) => {
   await expect(page.locator(".sandbox-result strong")).toHaveText("4%");
 });
 
-test("preserves the original home page, branding, models, and footer", async ({
+test("loads mainnet directly and preserves the original scene, branding, and footer", async ({
   page,
 }) => {
   const assets = new Set<string>();
@@ -170,16 +170,7 @@ test("preserves the original home page, branding, models, and footer", async ({
     route.fulfill({ json: reading }),
   );
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "Autonomys Network Info", exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("img", { name: "Autonomys", exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Select a Network" }),
-  ).toBeVisible();
-  await page.getByRole("link", { name: "Mainnet", exact: true }).click();
+  await expect(page).toHaveURL(/\/space\/mainnet$/);
   await expect(
     page.getByRole("button", { name: "Network space", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");

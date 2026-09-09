@@ -2,7 +2,7 @@
 
 [Live app](https://www.ai3.info) · [Autonomys](https://autonomys.xyz) · [Farming documentation](https://docs.autonomys.xyz)
 
-An interactive space explorer for the Autonomys community, retaining the original dark theme, network-selection home page, ring and glass-cube models, stars, and Autonomys branding. Explore network storage with React Three Fiber, follow readable network statistics, and see how your spare disk space compares with the network.
+An interactive space explorer for the Autonomys community, retaining the original dark theme, ring and glass-cube models, stars, and Autonomys branding. The root URL opens Mainnet directly. Explore network storage with React Three Fiber, follow readable network statistics, and see how your spare disk space compares with the network.
 
 ![Observatory desktop preview using clearly labeled sample data](docs/observatory-desktop.png)
 
@@ -10,7 +10,7 @@ An interactive space explorer for the Autonomys community, retaining the origina
 
 ## Explore
 
-- **Network readings:** pledged storage, blockchain size, and block height. Choose a network on the original home page; the in-page network selector navigates to shareable `/space/[networkId]` pages. Available networks come from the Autonomys SDK.
+- **Network readings:** pledged storage, blockchain size, and block height. The in-page network selector navigates to shareable `/space/[networkId]` pages. Available networks come from the Autonomys SDK.
 - **Original network space:** the default view preserves the original GLB models, materials, blue lighting, stars, curved readings, and Autonomys logo. Its 64 animated core cubes now support inspection, spread, pause, and reset controls.
 - **Optional Storage lab:** 125 instanced cells morph between an orbit and a lattice. Drag to orbit, scroll or pinch to zoom, spread the cells apart, pause rotation, or reset the view. Selecting a metric changes the sculpture’s palette and explanation.
 - **Cell inspection:** click a cell or use the keyboard-accessible inspection button to see its portion of the selected storage total. The cells are symbolic equal portions, not real farmers or geographic locations.
@@ -53,7 +53,7 @@ npx playwright install chromium
 npm test
 ```
 
-Browser tests start the production build on port 3100 and mock network responses for repeatability. They verify preservation of the original home page, model assets, logo, and social footer, and cover model controls, inspection, storage math, refresh failures and recovery, sample/cached states, network navigation, mobile keyboard controls, reduced motion, and WebGL failure. To use an existing Chrome installation instead of downloading Chromium, run `PLAYWRIGHT_CHROME=1 npm test`.
+Browser tests start the production build on port 3100 and mock network responses for repeatability. They verify the root redirect, model assets, logo, and social footer, and cover model controls, inspection, storage math, refresh failures and recovery, sample/cached states, network navigation, mobile keyboard controls, reduced motion, and WebGL failure. To use an existing Chrome installation instead of downloading Chromium, run `PLAYWRIGHT_CHROME=1 npm test`.
 
 TypeScript 7 provides the `tsc` executable via `@typescript/native`. The `typescript` dependency aliases the TypeScript 6 compatibility API required by typescript-eslint, following [Microsoft’s side-by-side setup](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).
 
