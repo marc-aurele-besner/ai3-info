@@ -1,9 +1,10 @@
 "use client";
 
-import { OrbitControls } from "@react-three/drei";
+import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
+  Suspense,
   ReactNode,
   useEffect,
   useLayoutEffect,
@@ -14,7 +15,12 @@ import {
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
+import type { ApiData } from "@/utils/api";
+import { NetworkModels } from "./NetworkModels";
+
 export type SceneProps = {
+  view: "station" | "storage";
+  data: ApiData | null;
   layout: "globe" | "grid";
   spread: number;
   playing: boolean;
@@ -81,16 +87,16 @@ function StorageSculpture({
       mesh.current!.setMatrixAt(i, dummy.matrix);
       color.set(
         i === selected
-          ? "#234e40"
+          ? "#90e4c3"
           : i === hovered
-            ? "#f3bd71"
+            ? "#c7d5ff"
             : i % 7 === 0
-              ? "#e2aa79"
+              ? "#9eb4ec"
               : metric === "chain"
-                ? "#648269"
+                ? "#5ca0b8"
                 : metric === "blocks"
-                  ? "#56665e"
-                  : "#ba5739",
+                  ? "#8e8bce"
+                  : "#576eb2",
       );
       mesh.current!.setColorAt(i, color);
     });
@@ -161,25 +167,31 @@ function StorageSculpture({
       </instancedMesh>
       <mesh rotation={[Math.PI / 2.6, 0.3, 0]}>
         <torusGeometry args={[3.55, 0.012, 8, 160]} />
-        <meshBasicMaterial color="#6f8173" transparent opacity={0.55} />
+        <meshBasicMaterial color="#7e91c6" transparent opacity={0.55} />
       </mesh>
       <mesh rotation={[Math.PI / 2.6, 0.3, 0]}>
         <torusGeometry args={[3.7, 0.006, 8, 160]} />
-        <meshBasicMaterial color="#6f8173" transparent opacity={0.28} />
+        <meshBasicMaterial color="#7e91c6" transparent opacity={0.28} />
       </mesh>
       {contribution > 0 && (
         <mesh position={[3.55, 0.25, 0]}>
           <icosahedronGeometry
             args={[0.15 + (contribution / 1024) * 0.24, 1]}
           />
-          <meshStandardMaterial color="#234e40" roughness={0.35} />
+          <meshStandardMaterial color="#90e4c3" roughness={0.35} />
         </mesh>
       )}
     </group>
   );
 }
 
-function Controls({ resetKey }: { resetKey: number }) {
+function Controls({
+  resetKey,
+  station,
+}: {
+  resetKey: number;
+  station: boolean;
+}) {
   const controls = useRef<OrbitControlsImpl>(null);
   useEffect(() => {
     controls.current?.reset();
@@ -190,8 +202,8 @@ function Controls({ resetKey }: { resetKey: number }) {
       makeDefault
       enablePan={false}
       enableDamping={false}
-      minDistance={6}
-      maxDistance={16}
+      minDistance={station ? 50 : 6}
+      maxDistance={station ? 300 : 16}
     />
   );
 }
@@ -267,7 +279,12 @@ export function Scene(props: SceneProps) {
       ) : (
         <SceneBoundary>
           <Canvas
-            camera={{ position: [6, 4, 7], fov: 46 }}
+            key={props.view}
+            camera={
+              props.view === "station"
+                ? { position: [100, 100, 60], fov: 7 }
+                : { position: [6, 4, 7], fov: 46 }
+            }
             dpr={[1, 1.5]}
             frameloop="demand"
             gl={{ antialias: true, powerPreference: "low-power" }}
@@ -284,19 +301,41 @@ export function Scene(props: SceneProps) {
             }}
             onPointerMissed={() => props.onSelect(null)}
           >
-            <ambientLight intensity={1.6} />
-            <directionalLight
-              position={[4, 7, 5]}
-              intensity={3}
-              color="#fff1da"
+            <Suspense
+              fallback={
+                <Html center>
+                  <span className="model-loading" role="status">
+                    Loading network models…
+                  </span>
+                </Html>
+              }
+            >
+              {props.view === "station" ? (
+                <NetworkModels {...props} playing={props.playing && visible} />
+              ) : (
+                <>
+                  <ambientLight intensity={1.6} />
+                  <directionalLight
+                    position={[4, 7, 5]}
+                    intensity={3}
+                    color="#b9ccff"
+                  />
+                  <directionalLight
+                    position={[-5, 2, -3]}
+                    intensity={1.5}
+                    color="#7e91c6"
+                  />
+                  <StorageSculpture
+                    {...props}
+                    playing={props.playing && visible}
+                  />
+                </>
+              )}
+            </Suspense>
+            <Controls
+              resetKey={props.resetKey}
+              station={props.view === "station"}
             />
-            <directionalLight
-              position={[-5, 2, -3]}
-              intensity={1.5}
-              color="#c9d9cf"
-            />
-            <StorageSculpture {...props} playing={props.playing && visible} />
-            <Controls resetKey={props.resetKey} />
           </Canvas>
         </SceneBoundary>
       )}

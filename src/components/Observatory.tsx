@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { Footer } from "./Footer";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -26,7 +28,6 @@ import {
 } from "@/utils/storage";
 
 type Props = { networkId: string; networks: { id: string; name: string }[] };
-const count = 125;
 const metricInfo = {
   space: {
     title: "Space pledged",
@@ -53,6 +54,8 @@ const metricInfo = {
 
 export function Observatory({ networkId, networks }: Props) {
   const router = useRouter();
+  const [view, setView] = useState<"station" | "storage">("station");
+  const count = view === "station" ? 64 : 125;
   const reducedMotion = usePrefersReducedMotion();
   const [demo, setDemo] = useState(false);
   const {
@@ -126,16 +129,10 @@ export function Observatory({ networkId, networks }: Props) {
       </a>
       <header className="site-header">
         <Link href="/" className="wordmark" aria-label="AI3 Info home">
-          <span className="brand-mark" aria-hidden="true">
-            aı³
-          </span>
-          <span>
-            info<span className="brand-dot">.</span>
-          </span>
+          <Image src="/images/ai3-info.svg" alt="" width={42} height={42} />
+          <span>AI3 Info</span>
         </Link>
-        <span className="header-caption">
-          An independent Autonomys observatory
-        </span>
+        <span className="header-caption">Explore the Autonomys Network</span>
         <a
           className="text-link"
           href="https://autonomys.xyz"
@@ -148,19 +145,13 @@ export function Observatory({ networkId, networks }: Props) {
       <main id="explore">
         <section className="intro">
           <div>
-            <p className="eyebrow">
-              <span className="tiny-orbit" /> A little space. A bigger picture.
-            </p>
-            <h1>
-              Get a feel for
-              <br />
-              the <em>network.</em>
-            </h1>
+            <p className="eyebrow">Autonomys Network Info</p>
+            <h1>{networkName}</h1>
           </div>
           <div className="intro-aside">
             <p>
-              Turn network numbers into something you can explore. Spin the
-              storage. Follow the chain. Find your place in it.
+              Explore AI3 in a fun and inviting 3D environment, gain insight on
+              network status and more…
             </p>
             <a href="#sandbox" className="text-link">
               Try the storage sandbox <FiArrowDown />
@@ -220,14 +211,32 @@ export function Observatory({ networkId, networks }: Props) {
         <section className="workspace" aria-label="Network explorer">
           <div className="visual-panel">
             <div className="visual-heading">
-              <span className="eyebrow">
-                01 / The shape of{" "}
-                {metric === "blocks" ? "consensus" : "storage"}
-              </span>
+              <div className="segmented view-switch" aria-label="Scene view">
+                <button
+                  aria-pressed={view === "station"}
+                  onClick={() => {
+                    setView("station");
+                    setSelected(null);
+                  }}
+                >
+                  Network space
+                </button>
+                <button
+                  aria-pressed={view === "storage"}
+                  onClick={() => {
+                    setView("storage");
+                    setSelected(null);
+                  }}
+                >
+                  Storage lab
+                </button>
+              </div>
               <span className="model-label">{count} symbolic cells</span>
             </div>
             <div className="scene-wrap">
               <SceneLoader
+                view={view}
+                data={data}
                 metric={metric}
                 layout={layout}
                 spread={spread}
@@ -241,26 +250,32 @@ export function Observatory({ networkId, networks }: Props) {
               <div className="scene-caption">
                 <span className="coordinate">
                   {networkId.toUpperCase()} /{" "}
-                  {layout === "globe" ? "ORBIT" : "LATTICE"}
+                  {view === "station"
+                    ? "NETWORK SPACE"
+                    : layout === "globe"
+                      ? "ORBIT"
+                      : "LATTICE"}
                 </span>
                 <span>Drag to orbit · Scroll or pinch to zoom</span>
               </div>
             </div>
             <div className="scene-controls">
-              <div className="segmented" aria-label="Model arrangement">
-                <button
-                  aria-pressed={layout === "globe"}
-                  onClick={() => setLayout("globe")}
-                >
-                  <FiCircle /> Orbit
-                </button>
-                <button
-                  aria-pressed={layout === "grid"}
-                  onClick={() => setLayout("grid")}
-                >
-                  <FiBox /> Lattice
-                </button>
-              </div>
+              {view === "storage" && (
+                <div className="segmented" aria-label="Model arrangement">
+                  <button
+                    aria-pressed={layout === "globe"}
+                    onClick={() => setLayout("globe")}
+                  >
+                    <FiCircle /> Orbit
+                  </button>
+                  <button
+                    aria-pressed={layout === "grid"}
+                    onClick={() => setLayout("grid")}
+                  >
+                    <FiBox /> Lattice
+                  </button>
+                </div>
+              )}
               <div className="scene-actions">
                 <button
                   className="icon-button"
@@ -388,7 +403,7 @@ export function Observatory({ networkId, networks }: Props) {
               compares with {networkName}.
             </p>
             <span className="sandbox-tag">
-              <span /> Your contribution is the green satellite
+              <span /> See your contribution in the Storage lab
             </span>
           </div>
           <div className="sandbox-input">
@@ -455,9 +470,9 @@ export function Observatory({ networkId, networks }: Props) {
             <details>
               <summary>What am I looking at?</summary>
               <p>
-                A playful model of the selected network’s totals. The 125 cells
-                are equal visual portions, not real farmers, locations, or a
-                measure of decentralization. Select a reading, then inspect a
+                A playful model of the selected network’s totals. The {count}{" "}
+                cells are equal visual portions, not real farmers, locations, or
+                a measure of decentralization. Select a reading, then inspect a
                 cell to connect the model to the numbers.
               </p>
             </details>
@@ -516,23 +531,7 @@ export function Observatory({ networkId, networks }: Props) {
           )}
         </div>
       </main>
-      <footer className="site-footer">
-        <Link href="/" className="footer-brand">
-          ai³ info.
-        </Link>
-        <span>
-          Made with curiosity by{" "}
-          <a href="https://github.com/marc-aurele-besner">Marc-Aurèle</a>
-        </span>
-        <a
-          href="https://github.com/marc-aurele-besner/ai3-info"
-          target="_blank"
-          rel="noreferrer"
-          className="text-link"
-        >
-          Open source, open space <FiArrowUpRight />
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }

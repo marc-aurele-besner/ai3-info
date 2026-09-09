@@ -33,13 +33,14 @@ test("explore live readings, model controls, inspection, and contribution", asyn
   await page.route("**/api/data/**", (route) =>
     route.fulfill({ json: reading }),
   );
-  await page.goto("/");
+  await page.goto("/space/mainnet");
   await expect(page.getByText("Live network", { exact: true })).toBeVisible();
   await expect(page.locator("canvas")).toBeVisible();
   await page.getByRole("button", { name: "Pause rotation" }).click();
   await expect(
     page.getByRole("button", { name: "Resume rotation" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Storage lab", exact: true }).click();
   await page.getByRole("button", { name: "Lattice", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Lattice", exact: true }),
@@ -72,7 +73,7 @@ test("failed refresh retains the last reading and retry recovers", async ({
           json: { ...reading, blockHeight: reading.blockHeight + requests },
         });
   });
-  await page.goto("/");
+  await page.goto("/space/mainnet");
   await expect(page.getByText("4,321,988", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Refresh network data" }).click();
   await expect(
@@ -90,7 +91,7 @@ test("initial failure, sample mode, cached data, and route changes are honest", 
   await page.route("**/api/data/**", (route) =>
     route.fulfill({ status: 500, json: {} }),
   );
-  await page.goto("/");
+  await page.goto("/space/mainnet");
   await expect(
     page.getByText("Connection unavailable", { exact: true }),
   ).toBeVisible();
@@ -122,6 +123,7 @@ test("mobile and reduced motion keep all controls usable", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "Resume rotation" }),
   ).toBeDisabled();
+  await page.getByRole("button", { name: "Storage lab", exact: true }).click();
   await page.getByRole("button", { name: "Lattice", exact: true }).click();
   await page.getByRole("button", { name: "Inspect a cell" }).focus();
   await page.keyboard.press("Enter");
@@ -151,8 +153,54 @@ test("WebGL failure preserves the data and calculator", async ({ page }) => {
   await page.route("**/api/data/**", (route) =>
     route.fulfill({ json: reading }),
   );
-  await page.goto("/");
+  await page.goto("/space/mainnet");
   await expect(page.getByText("Your observatory, in 2D.")).toBeVisible();
   await page.getByRole("button", { name: "100 TB", exact: true }).click();
   await expect(page.locator(".sandbox-result strong")).toHaveText("4%");
+});
+
+test("preserves the original home page, branding, models, and footer", async ({
+  page,
+}) => {
+  const assets = new Set<string>();
+  page.on("response", (response) => {
+    if (response.ok()) assets.add(new URL(response.url()).pathname);
+  });
+  await page.route("**/api/data/**", (route) =>
+    route.fulfill({ json: reading }),
+  );
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Autonomys Network Info", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: "Autonomys", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Select a Network" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Mainnet", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Network space", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect
+    .poll(
+      () =>
+        assets.has("/models/ring.glb") &&
+        assets.has("/models/cube.glb") &&
+        assets.has("/images/Autonomys.svg") &&
+        assets.has("/fonts/GeistVF.woff"),
+    )
+    .toBe(true);
+  await expect(page.getByText("Loading network models…")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Visit Marc-Aurèle on X (Twitter)" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Inspect a cell" }).click();
+  await expect(page.getByText(/Represents 37.5 TB/)).toBeVisible();
+  expect(
+    await page
+      .locator("body")
+      .evaluate((element) => getComputedStyle(element).backgroundColor),
+  ).toBe("rgb(0, 0, 0)");
 });
