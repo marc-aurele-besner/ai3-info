@@ -1,45 +1,31 @@
-import type { NetworkId } from "@autonomys/auto-utils";
-
 export type ApiData = {
   blockHeight: number;
   spacePledged: string;
   blockchainSize: string;
+  spacePledgedBytes?: string;
+  blockchainSizeBytes?: string;
+  updatedAt?: string;
+  cached?: boolean;
 };
 
-export const DEFAULT_API_DATA: ApiData = {
-  blockHeight: 0,
-  spacePledged: "loading...",
-  blockchainSize: "loading...",
-};
-
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const id = setTimeout(() => reject(new Error("Request timed out")), ms);
-    promise
-      .then((value) => {
-        clearTimeout(id);
-        resolve(value);
-      })
-      .catch((err) => {
-        clearTimeout(id);
-        reject(err);
-      });
+export async function fetchApiData(
+  networkId: string,
+  signal?: AbortSignal,
+): Promise<ApiData> {
+  const response = await fetch(`/api/data/${encodeURIComponent(networkId)}`, {
+    signal,
   });
-}
-
-export const fetchApiData = async (networkId: NetworkId): Promise<ApiData> => {
-  try {
-    const res = await withTimeout(fetch(`/api/data/${networkId}`), 8000);
-    if (!res.ok) {
-      throw new Error(`Request failed with status ${res.status}`);
-    }
-    return (await res.json()) as ApiData;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return {
-      blockHeight: 0,
-      spacePledged: "Error fetching data",
-      blockchainSize: "Error fetching data",
-    };
+  if (!response.ok)
+    throw new Error("The network is taking a little longer to respond.");
+  const data: ApiData = await response.json();
+  if (
+    !Number.isSafeInteger(data.blockHeight) ||
+    data.blockHeight < 0 ||
+    typeof data.spacePledged !== "string" ||
+    typeof data.blockchainSize !== "string" ||
+    /error|loading/i.test(data.spacePledged + data.blockchainSize)
+  ) {
+    throw new Error("The network returned an incomplete reading.");
   }
-};
+  return data;
+}

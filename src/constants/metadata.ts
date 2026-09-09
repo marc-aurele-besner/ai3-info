@@ -2,10 +2,13 @@ import { Metadata } from "next";
 
 export const url =
   process.env.NEXT_PUBLIC_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
 
 const title = "AI3 Info";
-const description = "Get info on Autonomys Network";
+const description =
+  "Explore Autonomys network storage in an interactive 3D observatory. Follow network readings, inspect pledged space, and try your own storage contribution.";
 const keywords = "Autonomys, AI3, Info, Network, Blockchain";
 const organization = "Marc-Aurèle Besner";
 const twitter = "@marcaureleb";

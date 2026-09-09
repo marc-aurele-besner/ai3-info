@@ -1,14 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { SceneProps } from "./Scene";
 
-const Scene = dynamic(() => import("@/components/Scene").then((m) => m.Scene), {
+const Scene = dynamic(() => import("./Scene").then((module) => module.Scene), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center w-full h-[60vh] text-[#576EB2]">
-      Loading 3D scene...
+    <div className="scene-fallback" role="status">
+      <span aria-hidden="true">◈</span>
+      <p>Assembling your observatory…</p>
     </div>
   ),
 });
 
-export const SceneLoader = () => <Scene />;
+export const SceneLoader = (props: SceneProps) => <Scene {...props} />;

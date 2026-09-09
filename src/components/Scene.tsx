@@ -1,559 +1,344 @@
 "use client";
 
-import { NetworkIdParam } from "@/types/app";
-import { ApiData, DEFAULT_API_DATA, fetchApiData } from "@/utils/api";
-import { useIsMobile, usePrefersReducedMotion } from "@/utils/hooks";
-import { sendGAEvent } from "@next/third-parties/google";
+import { Html, OrbitControls } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
-  CameraControls,
-  Loader,
-  Stars,
-  Text,
-  useGLTF,
-} from "@react-three/drei";
-import { Canvas, extend, useFrame, useLoader } from "@react-three/fiber";
-import type { ThreeElements } from "@react-three/fiber";
-import { useParams } from "next/navigation";
-import {
-  FC,
+  Component,
   Suspense,
-  useCallback,
+  ReactNode,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import * as THREE from "three";
-import { ShapeGeometry } from "three";
-import { GLTF, SVGLoader } from "three-stdlib";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
-extend({ ShapeGeometry });
+import type { ApiData } from "@/utils/api";
+import { NetworkModels } from "./NetworkModels";
 
-type CubeGLTFResult = GLTF & {
-  nodes: {
-    cube: THREE.Mesh;
-  };
-  materials: {
-    ["Satin Glass"]: THREE.MeshStandardMaterial;
-  };
+export type SceneProps = {
+  view: "station" | "storage";
+  data: ApiData | null;
+  layout: "globe" | "grid";
+  spread: number;
+  playing: boolean;
+  reducedMotion: boolean;
+  selected: number | null;
+  onSelect: (index: number | null) => void;
+  resetKey: number;
+  contribution: number;
+  metric: "space" | "chain" | "blocks";
 };
+export const CELL_COUNT = 125;
 
-type RingGLTFResult = GLTF & {
-  nodes: {
-    light_strip: THREE.Mesh;
-    rin_base: THREE.Mesh;
-    screen_handles: THREE.Mesh;
-    screen: THREE.Mesh;
-    side_pattern: THREE.Mesh;
-    middle_frame: THREE.Mesh;
-    top_pattern: THREE.Mesh;
-  };
-  materials: {
-    ["Material.001"]: THREE.MeshStandardMaterial;
-    Material: THREE.MeshStandardMaterial;
-    ["Satin Glass"]: THREE.MeshStandardMaterial;
-  };
-};
-
-const LARGE_CUBE_SCALE = 2;
-
-const ONE_CUBE_SIDE_LENGTH = 4;
-const TOTAL_CUBES =
-  ONE_CUBE_SIDE_LENGTH * ONE_CUBE_SIDE_LENGTH * ONE_CUBE_SIDE_LENGTH;
-
-const CUBES_POSITION_RANGE = 0.5;
-const CUBE_SCALE = 0.2;
-const CUBE_SPACING = 0.2;
-
-const Boxes: FC = () => {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const [hovered, set] = useState<number | undefined>();
-
-  const meshRef = useRef<THREE.InstancedMesh | null>(null);
-  const prevRef = useRef<number | undefined>(undefined);
-
-  const tempObject = useMemo(() => new THREE.Object3D(), []);
-  const tempColor = useMemo(() => new THREE.Color(), []);
-
-  const data = useMemo(
-    () =>
-      Array.from({ length: TOTAL_CUBES }, () => ({
-        color: `hsl(217, 71%, ${50 + Math.random() * 10}%)`,
-        scale: 0.1,
-      })),
-    []
+function StorageSculpture({
+  layout,
+  spread,
+  playing,
+  reducedMotion,
+  selected,
+  onSelect,
+  contribution,
+  metric,
+  resetKey,
+}: SceneProps) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const group = useRef<THREE.Group>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const invalidate = useThree((state) => state.invalidate);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const color = useMemo(() => new THREE.Color(), []);
+  const current = useMemo(
+    () => Array.from({ length: CELL_COUNT }, () => new THREE.Vector3()),
+    [],
   );
-
-  const colorArray = useMemo(
+  const targets = useMemo(
     () =>
-      Float32Array.from(
-        new Array(TOTAL_CUBES)
-          .fill(0)
-          .flatMap((_, i) => tempColor.set(data[i].color).toArray())
-      ),
-    [data, tempColor]
-  );
-
-  useEffect(() => void (prevRef.current = hovered), [hovered]);
-
-  useFrame((state) => {
-    if (prefersReducedMotion) return;
-    const time = state.clock.getElapsedTime();
-    meshRef.current!.rotation.x = Math.sin(time / 4);
-    meshRef.current!.rotation.y = Math.sin(time / 2);
-    let i = 0;
-    for (let x = 0; x < ONE_CUBE_SIDE_LENGTH; x++)
-      for (let y = 0; y < ONE_CUBE_SIDE_LENGTH; y++)
-        for (let z = 0; z < ONE_CUBE_SIDE_LENGTH; z++) {
-          const id = i++;
-          tempObject.position.set(
-            CUBES_POSITION_RANGE - x * (CUBE_SCALE + CUBE_SPACING),
-            CUBES_POSITION_RANGE - y * (CUBE_SCALE + CUBE_SPACING),
-            CUBES_POSITION_RANGE - z * (CUBE_SCALE + CUBE_SPACING)
+      Array.from({ length: CELL_COUNT }, (_, i) => {
+        const spacing = 0.57 + spread * 0.005;
+        if (layout === "grid")
+          return new THREE.Vector3(
+            ((i % 5) - 2) * spacing,
+            ((Math.floor(i / 5) % 5) - 2) * spacing,
+            (Math.floor(i / 25) - 2) * spacing,
           );
-          tempObject.rotation.y =
-            Math.sin(x / 4 + time) +
-            Math.sin(y / 4 + time) +
-            Math.sin(z / 4 + time);
-          tempObject.rotation.z = tempObject.rotation.y * 2;
-          if (hovered !== prevRef.current) {
-            (id === hovered
-              ? tempColor.setRGB(10, 10, 10)
-              : tempColor.set(data[id].color)
-            ).toArray(colorArray, id * 3);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (meshRef as any).current.geometry.attributes.color.needsUpdate = true;
-          }
-          tempObject.updateMatrix();
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (meshRef as any).current.setMatrixAt(id, tempObject.matrix);
-        }
-    meshRef.current!.instanceMatrix.needsUpdate = true;
+        const phi = Math.acos(1 - (2 * (i + 0.5)) / CELL_COUNT);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+        const radius = 1.85 + spread * 0.014;
+        return new THREE.Vector3().setFromSphericalCoords(radius, phi, theta);
+      }),
+    [layout, spread],
+  );
+
+  useEffect(() => {
+    group.current?.rotation.set(0.12, 0.2, -0.1);
+    invalidate();
+  }, [resetKey, invalidate]);
+
+  useLayoutEffect(() => {
+    if (!mesh.current) return;
+    targets.forEach((target, i) => {
+      if (reducedMotion || current[i].lengthSq() === 0) current[i].copy(target);
+      dummy.position.copy(current[i]);
+      dummy.scale.setScalar(i === selected ? 1.35 : 1);
+      dummy.updateMatrix();
+      mesh.current!.setMatrixAt(i, dummy.matrix);
+      color.set(
+        i === selected
+          ? "#90e4c3"
+          : i === hovered
+            ? "#c7d5ff"
+            : i % 7 === 0
+              ? "#9eb4ec"
+              : metric === "chain"
+                ? "#5ca0b8"
+                : metric === "blocks"
+                  ? "#8e8bce"
+                  : "#576eb2",
+      );
+      mesh.current!.setColorAt(i, color);
+    });
+    mesh.current.instanceMatrix.needsUpdate = true;
+    if (mesh.current.instanceColor)
+      mesh.current.instanceColor.needsUpdate = true;
+    mesh.current.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 6);
+    invalidate();
+  }, [
+    targets,
+    reducedMotion,
+    current,
+    dummy,
+    color,
+    selected,
+    hovered,
+    metric,
+    invalidate,
+  ]);
+
+  useFrame((_, delta) => {
+    if (!mesh.current || !group.current) return;
+    let moving = false;
+    targets.forEach((target, i) => {
+      if (current[i].distanceToSquared(target) > 0.00001) {
+        current[i].lerp(target, 1 - Math.exp(-7 * Math.min(delta, 0.1)));
+        moving = true;
+      }
+      dummy.position.copy(current[i]);
+      dummy.rotation.set(i * 0.12, i * 0.08, 0);
+      dummy.scale.setScalar(i === selected ? 1.35 : 1);
+      dummy.updateMatrix();
+      mesh.current!.setMatrixAt(i, dummy.matrix);
+    });
+    mesh.current.instanceMatrix.needsUpdate = true;
+    if (playing && !reducedMotion)
+      group.current.rotation.y += Math.min(delta, 0.1) * 0.13;
+    if (moving || (playing && !reducedMotion)) invalidate();
   });
 
-  return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, TOTAL_CUBES]}
-      onPointerMove={(e) => (e.stopPropagation(), set(e.instanceId))}
-      onPointerOut={() => set(undefined)}
-    >
-      <boxGeometry args={[CUBE_SCALE, CUBE_SCALE, CUBE_SCALE]}>
-        <instancedBufferAttribute
-          attach="attributes-color"
-          args={[colorArray, 3]}
-        />
-      </boxGeometry>
-      <meshBasicMaterial toneMapped={false} vertexColors />
-    </instancedMesh>
-  );
-};
-
-interface CurvedTextProps {
-  text: string;
-  radius: number;
-  angleRange: number;
-  yOffset: number;
-}
-
-const CurvedText: FC<CurvedTextProps> = ({
-  text,
-  radius,
-  angleRange,
-  yOffset,
-}) => {
-  return (
-    <group>
-      {Array.from(text).map((char, index) => {
-        const angle =
-          -angleRange / 2 + (index / (text.length - 1)) * angleRange;
-        const x = radius * Math.sin(angle);
-        const z = radius * Math.cos(angle) - 2.15;
-
-        return (
-          <Text
-            key={index}
-            position={[x, yOffset, z]}
-            rotation={[0, angle, 0]}
-            fontSize={0.25}
-            fontWeight={700}
-            maxWidth={0.5}
-            textAlign="left"
-            overflowWrap="break-word"
-            color={"#566EB1"}
-            letterSpacing={-0.1}
-          >
-            {char}
-          </Text>
-        );
-      })}
-    </group>
-  );
-};
-interface CurvedAutonomysLogoProps {
-  url: string;
-  radius: number;
-  angleRange: number;
-  depth: number;
-  scale: number;
-}
-
-const CurvedAutonomysLogo: React.FC<CurvedAutonomysLogoProps> = ({
-  url,
-  radius,
-  angleRange,
-  depth,
-  scale,
-}) => {
-  const svgData = useLoader(SVGLoader, url);
-  const groupRef = useRef<THREE.Group>(null);
+  useEffect(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>(
+      ".scene-viewport canvas",
+    );
+    if (canvas) canvas.style.cursor = hovered === null ? "grab" : "pointer";
+    return () => {
+      if (canvas) canvas.style.cursor = "grab";
+    };
+  }, [hovered]);
 
   return (
-    <group
-      ref={groupRef}
-      position={[-1.5, 0.35, depth]}
-      scale={[-scale, scale, scale]}
-      rotation={[0, 0, Math.PI]}
-    >
-      {svgData.paths.map((path, pathIndex) =>
-        path.toShapes().map((shape, shapeIndex) => {
-          const angle =
-            -angleRange / 2 +
-            (pathIndex / svgData.paths.length - 0.5) * angleRange;
-          const x = radius * Math.sin(angle);
-          const z = radius * Math.cos(angle) - 2.1;
-
-          return (
-            <mesh
-              key={`${pathIndex}-${shapeIndex}`}
-              position={[x, 0.05, z]}
-              rotation={[0, angle, 0]}
-            >
-              <shapeGeometry args={[shape]} />
-              <meshBasicMaterial color={"#566EB1"} />
-            </mesh>
-          );
-        })
+    <group ref={group} rotation={[0.12, 0.2, -0.1]}>
+      <instancedMesh
+        ref={mesh}
+        args={[undefined, undefined, CELL_COUNT]}
+        onPointerMove={(event) => {
+          event.stopPropagation();
+          setHovered(event.instanceId ?? null);
+        }}
+        onPointerOut={() => setHovered(null)}
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelect(event.instanceId ?? null);
+        }}
+      >
+        <boxGeometry args={[0.33, 0.33, 0.33]} />
+        <meshStandardMaterial roughness={0.38} metalness={0.12} />
+      </instancedMesh>
+      <mesh rotation={[Math.PI / 2.6, 0.3, 0]}>
+        <torusGeometry args={[3.55, 0.012, 8, 160]} />
+        <meshBasicMaterial color="#7e91c6" transparent opacity={0.55} />
+      </mesh>
+      <mesh rotation={[Math.PI / 2.6, 0.3, 0]}>
+        <torusGeometry args={[3.7, 0.006, 8, 160]} />
+        <meshBasicMaterial color="#7e91c6" transparent opacity={0.28} />
+      </mesh>
+      {contribution > 0 && (
+        <mesh position={[3.55, 0.25, 0]}>
+          <icosahedronGeometry
+            args={[0.15 + (contribution / 1024) * 0.24, 1]}
+          />
+          <meshStandardMaterial color="#90e4c3" roughness={0.35} />
+        </mesh>
       )}
     </group>
   );
-};
+}
 
-export const Models: FC = (props: ThreeElements["group"]) => {
-  const [ring, cube] = useGLTF(["/models/ring.glb", "/models/cube.glb"]);
-  const { nodes: ringNodes, materials: ringMaterials } =
-    ring as unknown as RingGLTFResult;
-  const { nodes: cubeNodes, materials: cubeMaterials } =
-    cube as unknown as CubeGLTFResult;
-
-  const { networkId } = useParams<NetworkIdParam>();
-  const [apiData, setApiData] = useState<ApiData>(DEFAULT_API_DATA);
-  const inFlightRef = useRef<boolean>(false);
-  const lastPayloadRef = useRef<ApiData | null>(null);
-
-  const fetchData = useCallback(async () => {
-    if (inFlightRef.current) return;
-    inFlightRef.current = true;
-    try {
-      const data = await fetchApiData(networkId);
-      setApiData(data);
-      const last = lastPayloadRef.current;
-      if (!last || last.blockHeight !== data.blockHeight) {
-        sendGAEvent("event", "fetchData", { value: networkId });
-      }
-      lastPayloadRef.current = data;
-    } finally {
-      inFlightRef.current = false;
-    }
-  }, [networkId]);
-
+function Controls({
+  resetKey,
+  station,
+}: {
+  resetKey: number;
+  station: boolean;
+}) {
+  const controls = useRef<OrbitControlsImpl>(null);
   useEffect(() => {
-    // reset last payload when network changes
-    lastPayloadRef.current = null;
-    fetchData();
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
-
+    controls.current?.reset();
+  }, [resetKey]);
   return (
-    <group {...props} dispose={null}>
-      <mesh
-        geometry={ringNodes.light_strip.geometry}
-        material={ringMaterials["Material.001"]}
-        scale={[1, 0.54, 1]}
-      />
-      <mesh
-        geometry={ringNodes.rin_base.geometry}
-        material={ringMaterials.Material}
-        position={[0, -0.215, 0]}
-        scale={[1, 1.944, 1]}
-      />
-      <mesh
-        geometry={ringNodes.screen_handles.geometry}
-        material={ringMaterials.Material}
-        position={[0, 0, -8.5]}
-      />
-      {/* Autonomys logo + Text */}
-      <CurvedAutonomysLogo
-        url="/images/Autonomys.svg"
-        radius={10}
-        angleRange={Math.PI / 10}
-        depth={7.75}
-        scale={0.003}
-      />
-      {/* Block Height Text */}
-      <CurvedText
-        text={`Block Height: ${apiData.blockHeight}`}
-        radius={10}
-        angleRange={Math.PI / 9.5}
-        yOffset={-0.4}
-      />
-      {/* Space Pledge Text */}
-      <CurvedText
-        text={`Space Pledged: ${apiData.spacePledged}`}
-        radius={10}
-        angleRange={Math.PI / 9.5}
-        yOffset={-0.7}
-      />
-      {/* Blockchain size */}
-      <CurvedText
-        text={`Chain size: ${apiData.blockchainSize}`}
-        radius={10}
-        angleRange={Math.PI / 9.5}
-        yOffset={-1}
-      />
-      <mesh
-        geometry={ringNodes.screen.geometry}
-        material={ringMaterials["Satin Glass"]}
-        position={[0.08, 0, -8.5]}
-        scale={[0.949, 1, 1]}
-      />
-      <mesh
-        geometry={ringNodes.side_pattern.geometry}
-        material={ringMaterials["Material.001"]}
-        position={[0, -0.688, -0.05]}
-      />
-      <mesh
-        geometry={ringNodes.middle_frame.geometry}
-        material={ringMaterials.Material}
-        position={[0, 0.1, 0]}
-        scale={[1.001, 0.296, 1.001]}
-      />
-      <mesh
-        geometry={ringNodes.top_pattern.geometry}
-        material={ringMaterials.Material}
-        position={[0, -0.148, 0]}
-      />
-
-      {/* The Cube */}
-      <group {...props} dispose={null}>
-        <mesh
-          geometry={cubeNodes.cube.geometry}
-          material={cubeMaterials["Satin Glass"]}
-          scale={LARGE_CUBE_SCALE}
-        />
-        <Boxes />
-      </group>
-    </group>
+    <OrbitControls
+      ref={controls}
+      makeDefault
+      enablePan={false}
+      enableDamping={false}
+      minDistance={station ? 50 : 6}
+      maxDistance={station ? 300 : 16}
+    />
   );
-};
+}
 
-export const Scene: FC = () => {
-  const isMobile = useIsMobile();
-  const prefersReducedMotion = usePrefersReducedMotion();
+function Fallback() {
   return (
-    <>
-      <Suspense fallback={<span>loading...</span>}>
-        <Canvas
-          camera={{
-            position: isMobile ? [120, 120, 90] : [100, 100, 60],
-            fov: isMobile ? 6 : 5,
-          }}
-          dpr={isMobile ? [1, 1.3] : [1, 1.7]}
-        >
-          <Stars count={prefersReducedMotion ? 2000 : isMobile ? 15000 : 30000} />
-          <ambientLight intensity={Math.PI / 1.5} />
-          {/* Key Top Light */}
-          <spotLight
-            position={[50, 50, 50]}
-            angle={0.15}
-            penumbra={1}
-            color="#566EB1"
-            decay={0}
-            intensity={Math.PI * 10}
-          />
-          <spotLight
-            position={[-50, 50, 50]}
-            angle={0.15}
-            penumbra={1}
-            color="#7E91C6"
-            decay={0}
-            intensity={Math.PI * 10}
-          />
-          <spotLight
-            position={[50, 50, -50]}
-            angle={0.15}
-            penumbra={1}
-            color="#566EB1"
-            decay={0}
-            intensity={Math.PI * 10}
-          />
-          <spotLight
-            position={[-50, 50, -50]}
-            angle={0.15}
-            penumbra={1}
-            color="#7E91C6"
-            decay={0}
-            intensity={Math.PI * 10}
-          />
-
-          {/* Side Outside Ring Light - Left Front */}
-          <pointLight
-            position={[-15, 1, 15]}
-            color="#7E91C6"
-            decay={0.5}
-            intensity={Math.PI * 8}
-          />
-          {/* Side Outside Ring Light - Right Front */}
-          <pointLight
-            position={[15, 1, 15]}
-            color="#7E91C6"
-            decay={0.5}
-            intensity={Math.PI * 8}
-          />
-          {/* Side Outside Ring Light - Left Back */}
-          <pointLight
-            position={[-15, 1, -15]}
-            color="#7E91C6"
-            decay={0.5}
-            intensity={Math.PI * 8}
-          />
-          {/* Side Outside Ring Light - Right Back */}
-          <pointLight
-            position={[15, 1, -15]}
-            color="#7E91C6"
-            decay={0.5}
-            intensity={Math.PI * 8}
-          />
-
-          {/* Rotate Ring Model */}
-          <group rotation={[0, 1, 0]}>
-            <Models />
-
-            {/* Top Spot Light */}
-            <spotLight
-              position={[0, 15, 0]}
-              angle={25}
-              color="#566EB1"
-              decay={0}
-              intensity={Math.PI * 100}
-            />
-            {/* Bottom Spot Light */}
-            <spotLight
-              position={[0, -15, 0]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-
-            {/* Top Spot Light - Front Facing Arc around Cube */}
-            <spotLight
-              position={[0, -10, 2.5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, -7.5, 2.5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, -5, 5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, -2.5, 7.5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, 2.5, 7.5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, 5, 5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, 7.5, 2.5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            <spotLight
-              position={[0, 10, 2.5]}
-              angle={1}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-
-            {/* Front Facing Inside Ring Light */}
-            <spotLight
-              position={[0, 0, 7.5]}
-              angle={0.5}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            {/* Back Facing Inside Ring Light */}
-            <spotLight
-              position={[0, 0, -7.5]}
-              angle={2}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            {/* Left Facing Inside Ring Light */}
-            <spotLight
-              position={[-7.5, 0, 0]}
-              angle={2}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-            {/* Right Facing Inside Ring Light */}
-            <spotLight
-              position={[7.5, 0, 0]}
-              angle={2}
-              color="#566EB1"
-              decay={1}
-              intensity={Math.PI * 100}
-            />
-          </group>
-          <CameraControls />
-        </Canvas>
-      </Suspense>
-      <Loader />
-    </>
+    <div className="scene-fallback">
+      <span aria-hidden="true">◈</span>
+      <strong>Your observatory, in 2D.</strong>
+      <p>
+        3D isn’t available on this device. Explore every reading and the storage
+        sandbox below.
+      </p>
+    </div>
   );
-};
+}
 
-useGLTF.preload(["/models/ring.glb", "/models/cube.glb"]);
+class SceneBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? <Fallback /> : this.props.children;
+  }
+}
+
+export function Scene(props: SceneProps) {
+  const [lost, setLost] = useState(false);
+  const [supported, setSupported] = useState<boolean | null>(null);
+  useEffect(() => {
+    try {
+      const probe = document.createElement("canvas");
+      const context = probe.getContext("webgl2");
+      setSupported(!!context);
+      context?.getExtension("WEBGL_lose_context")?.loseContext();
+    } catch {
+      setSupported(false);
+    }
+  }, []);
+  const [visible, setVisible] = useState(true);
+  const viewport = useRef<HTMLDivElement>(null);
+  const inViewport = useRef(true);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      inViewport.current = entry.isIntersecting;
+      setVisible(entry.isIntersecting && !document.hidden);
+    });
+    if (viewport.current) observer.observe(viewport.current);
+    const update = () => setVisible(inViewport.current && !document.hidden);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, []);
+  return (
+    <div
+      ref={viewport}
+      className="scene-viewport"
+      role="group"
+      aria-label="Interactive storage model. Drag to orbit, scroll to zoom. Equivalent controls and data follow the model."
+    >
+      {supported === null ? (
+        <div className="scene-fallback" role="status">
+          Preparing the 3D view…
+        </div>
+      ) : lost || !supported ? (
+        <Fallback />
+      ) : (
+        <SceneBoundary>
+          <Canvas
+            key={props.view}
+            camera={
+              props.view === "station"
+                ? { position: [100, 100, 60], fov: 7 }
+                : { position: [6, 4, 7], fov: 46 }
+            }
+            dpr={[1, 1.5]}
+            frameloop="demand"
+            gl={{ antialias: true, powerPreference: "low-power" }}
+            fallback={<Fallback />}
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener(
+                "webglcontextlost",
+                (event) => {
+                  event.preventDefault();
+                  setLost(true);
+                },
+                { once: true },
+              );
+            }}
+            onPointerMissed={() => props.onSelect(null)}
+          >
+            <Suspense
+              fallback={
+                <Html center>
+                  <span className="model-loading" role="status">
+                    Loading network models…
+                  </span>
+                </Html>
+              }
+            >
+              {props.view === "station" ? (
+                <NetworkModels {...props} playing={props.playing && visible} />
+              ) : (
+                <>
+                  <ambientLight intensity={1.6} />
+                  <directionalLight
+                    position={[4, 7, 5]}
+                    intensity={3}
+                    color="#b9ccff"
+                  />
+                  <directionalLight
+                    position={[-5, 2, -3]}
+                    intensity={1.5}
+                    color="#7e91c6"
+                  />
+                  <StorageSculpture
+                    {...props}
+                    playing={props.playing && visible}
+                  />
+                </>
+              )}
+            </Suspense>
+            <Controls
+              resetKey={props.resetKey}
+              station={props.view === "station"}
+            />
+          </Canvas>
+        </SceneBoundary>
+      )}
+    </div>
+  );
+}
