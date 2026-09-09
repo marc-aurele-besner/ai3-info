@@ -1,7 +1,6 @@
 import { NetworkIdParam } from "@/types/app";
 import {
   blockchainSize,
-  blockNumber,
   formatSpaceToDecimal,
   spacePledged,
 } from "@autonomys/auto-consensus";
@@ -11,39 +10,40 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ networkId: string }> }
+  { params }: { params: Promise<{ networkId: string }> },
 ) {
   const { networkId } = await params;
   try {
     if (!networkId) {
-      return NextResponse.json(
-        { error: "Missing networkId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing networkId" }, { status: 400 });
     }
 
     const supported = networks.some(
-      (n) => n.id === networkId && n.isLocalhost === undefined
+      (n) => n.id === networkId && n.isLocalhost === undefined,
     );
     if (!supported) {
       return NextResponse.json(
         { error: `Unsupported networkId: ${networkId}` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const api = await activate({
       networkId: networkId as NetworkIdParam["networkId"],
     });
-    const [blockHeight, total, size] = await Promise.all([
-      blockNumber(api),
+    const [latestHeader, total, size] = await Promise.all([
+      // Read the header directly: the SDK full-block helper can decode height as zero.
+      api.rpc.chain.getHeader(),
       spacePledged(api),
       blockchainSize(api),
-    ]);
-    await api.disconnect();
+    ]).finally(() => api.disconnect());
 
     const payload = {
-      blockHeight,
+      blockHeight: latestHeader.number.toNumber(),
+      spacePledgedBytes: total.toString(),
+      blockchainSizeBytes: size.toString(),
+      updatedAt: new Date().toISOString(),
+      cached: false,
       spacePledged: formatSpaceToDecimal(parseInt(total.toString())),
       blockchainSize: formatSpaceToDecimal(parseInt(size.toString())),
     };
@@ -60,12 +60,14 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching data:", error);
     try {
-      const cached = await kv.get(`last-data-${networkId}`);
+      const cached = await kv.get<Record<string, unknown>>(
+        `last-data-${networkId}`,
+      );
       if (cached) {
-        const res = NextResponse.json(cached);
+        const res = NextResponse.json({ ...cached, cached: true });
         res.headers.set(
           "Cache-Control",
-          "s-maxage=60, stale-while-revalidate=120"
+          "s-maxage=60, stale-while-revalidate=120",
         );
         return res;
       }
@@ -78,7 +80,7 @@ export async function GET(
         spacePledged: "Error fetching data",
         blockchainSize: "Error fetching data",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

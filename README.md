@@ -1,193 +1,79 @@
-# AI3 Info - Autonomys Network Explorer
+# AI3 Info — Autonomys Network Observatory
 
-![Vercel Deploy](https://deploy-badge.vercel.app/vercel/ai3-info)
+[Live app](https://www.ai3.info) · [Autonomys](https://autonomys.xyz) · [Farming documentation](https://docs.autonomys.xyz)
 
-> 🌐 **[Live Demo: https://www.ai3.info](https://www.ai3.info)**
+An independent, interactive observatory for the Autonomys community. Explore network storage with React Three Fiber, follow readable network statistics, and see how your spare disk space compares with the network.
 
-A modern web application that provides real-time insights into the Autonomys Network through an interactive 3D interface. Built with Next.js, React Three Fiber, and powered by the Auto SDK.
+![Observatory desktop preview using clearly labeled sample data](docs/observatory-desktop.png)
 
-## Overview
+[Mobile preview](docs/observatory-mobile.png)
 
-AI3 Info is a network explorer and visualization tool that allows users to:
+## Explore
 
-- View real-time network statistics across different Autonomys networks (Mainnet, Taurus, Gemini 3H)
-- Explore network status in an engaging 3D environment with interactive visualizations
-- Monitor space pledged on the Autonomys Network through immersive 3D representations
-- Track consensus metrics and network health with dynamic visual feedback
+- **Network readings:** pledged storage, blockchain size, and block height. The home page opens Mainnet; the network selector navigates to shareable `/space/[networkId]` pages. Available networks come from the Autonomys SDK.
+- **Interactive storage sculpture:** 125 instanced cells morph between an orbit and a lattice. Drag to orbit, scroll or pinch to zoom, spread the cells apart, pause rotation, or reset the view. Selecting a metric changes the sculpture’s palette and explanation.
+- **Cell inspection:** click a cell or use the keyboard-accessible inspection button to see its portion of the selected storage total. The cells are symbolic equal portions, not real farmers or geographic locations.
+- **Storage sandbox:** choose 1–1,024 decimal TB and calculate your share after adding it to the selected network’s pledged space. A green satellite represents the contribution, enlarged for visibility. This is a capacity comparison, not a reward prediction.
+- **Honest data states:** poll every 30 seconds while the tab is visible, retain the last reading on failure, label cached results, and offer an explicitly labeled sample playground. Recent block readings are observed during the current visit; no historical activity is invented.
+- **Accessible alternatives:** readable HTML metrics, labeled controls, keyboard inspection, reduced-motion support, and a WebGL fallback that keeps the statistics and calculator usable.
 
-### Built With
+The 3D scene uses procedural geometry, instancing, a capped pixel ratio, and on-demand rendering. It does not need remote fonts, textures, or model downloads. Automatic rotation stops when paused, offscreen, in a hidden tab, or when reduced motion is requested.
 
-- [Next.js 14](https://nextjs.org) - React framework for production
-- [Deno 2](https://deno.com/) - Modern JavaScript/TypeScript runtime
-- [Auto SDK](https://github.com/autonomys/auto-sdk) - Official Autonomys Network SDK
-- [React Three Fiber](https://github.com/pmndrs/react-three-fiber) - React renderer for Three.js
-- [Drei](https://github.com/pmndrs/drei) - Useful helpers for React Three Fiber
-- [Three.js](https://threejs.org) - 3D visualization library
-- [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
+## Development
 
-## Features
+Use Node.js 20.9+ and npm.
 
-- **Multi-Network Support**: Switch between different Autonomys networks (Mainnet, Testnet-Taurus, Testnet-Gemini 3H)
-- **Real-Time Updates**: Live network statistics and metrics
-- **Interactive 3D Visualization**:
-  - Immersive exploration of network data
-  - Dynamic camera controls and animations
-  - Responsive 3D elements that react to network changes
-  - Custom shaders and effects for enhanced visuals
-- **Responsive Design**: Optimized for both desktop and mobile devices
-- **Auto SDK Integration**: Direct connection to Autonomys Network functionality
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- Yarn or npm
-- WebGL-compatible browser
-
-### Environment variables
-
-Create a `.env.local` (or use deployment env) with:
-
-```
-NEXT_PUBLIC_URL=https://www.ai3.info
-NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
-KV_REST_API_URL=... # server-side only
-KV_REST_API_TOKEN=... # server-side only
-```
-
-See `.env.example` for a template.
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/marc-aurele-besner/ai3-info.git
-cd ai3-info
-```
-
-2. Install dependencies:
-
-```bash
-yarn install
-# or
-npm install
-```
-
-3. Start the development server:
-
-```bash
-yarn dev
-# or
+```sh
+npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see the application.
+Open [localhost:3000](http://localhost:3000).
 
-## Technology Stack Details
+Optional environment variables:
 
-### React Three Fiber Integration
-
-The project uses React Three Fiber for declarative 3D rendering:
-
-```tsx
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment } from "@react-three/drei";
-
-function Scene() {
-  return (
-    <Canvas>
-      <OrbitControls />
-      <Environment preset="city" />
-      <NetworkVisualization />
-    </Canvas>
-  );
-}
+```dotenv
+NEXT_PUBLIC_URL=https://www.ai3.info
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+KV_REST_API_URL=...
+KV_REST_API_TOKEN=...
 ```
 
-### Drei Helpers
+The KV credentials are server-only and enable last-known-reading fallback. Live reads use the SDK’s public RPC endpoints. Without a working connection, the interface offers sample data; it never presents samples as live readings. No environment variables are required to use the sample playground.
 
-We utilize various Drei helpers for enhanced 3D functionality:
+## Validation
 
-- `OrbitControls` for camera manipulation
-- `Text3D` for 3D text rendering
-- `Environment` for scene lighting
-- `Effects` for post-processing
-- Custom materials and shaders
-
-### Auto SDK Integration
-
-This project uses the [@autonomys/auto-sdk](https://github.com/autonomys/auto-sdk) for blockchain interactions:
-
-```typescript
-import { activateWallet } from "@autonomys/auto-utils";
-import { spacePledged } from "@autonomys/auto-consensus";
-
-const networkStats = async () => {
-  const { api } = await activateWallet({
-    networkId: "mainnet",
-  });
-  // Fetch network statistics
-  const spacePledged = await spacePledged(api);
-  console.log(spacePledged);
-};
+```sh
+npm run lint
+npm run typecheck
+npm run build
+npx playwright install chromium
+npm test
 ```
 
-## Project Structure
+Browser tests start the production build on port 3100 and mock network responses for repeatability. They cover model controls, inspection, storage math, refresh failures and recovery, sample/cached states, network navigation, mobile keyboard controls, reduced motion, and WebGL failure. To use an existing Chrome installation instead of downloading Chromium, run `PLAYWRIGHT_CHROME=1 npm test`.
 
-```
-ai3-info/
-├── src/
-│   ├── app/          # Next.js pages and routing
-│   ├── components/   # React components
-│   │   ├── 3d/      # Three.js/R3F components
-│   │   ├── ui/      # User interface components
-│   │   └── network/ # Network-related components
-│   ├── utils/        # Utility functions
-│   └── styles/       # Global styles and Tailwind
-├── public/           # Static assets
-│   ├── models/      # 3D models and textures
-│   └── images/      # Images and icons
-└── ...config files
-```
+TypeScript 7 provides the `tsc` executable via `@typescript/native`. The `typescript` dependency aliases the TypeScript 6 compatibility API required by typescript-eslint, following [Microsoft’s side-by-side setup](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).
 
-## Contributing
+## Data and architecture
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+- Next.js 16 App Router, React 19, React Three Fiber, Drei, and Three.js.
+- `src/components/Observatory.tsx`: the HTML interface and shared interaction state.
+- `src/components/Scene.tsx`: the lazy-loaded, procedural 3D scene.
+- `src/utils/useNetworkData.ts`: abortable polling, retries, and session observations.
+- `src/utils/storage.ts`: decimal storage formatting and contribution calculations.
+- `src/app/api/data/[networkId]/route.ts`: SDK reads and optional KV fallback. Responses preserve formatted values and add raw byte strings, a reading timestamp, and a fallback-cache flag. Older cached payloads remain supported.
+
+The sandbox computes `added bytes / (pledged bytes + added bytes) × 100`. Raw byte strings avoid using rounded display values where possible; older cache entries fall back to parsing their decimal units. Numbers are approximate capacity comparisons, not exact byte accounting.
 
 ## Deployment
 
-This project is deployed on [Vercel](https://vercel.com) and can be accessed at [ai3.info](https://www.ai3.info/).
-
-This app now includes:
-- `robots.txt` at `/robots.txt`
-- `sitemap.xml` at `/sitemap.xml`
-- Open Graph images at `/image` and `/space/[networkId]/image`
-
-For manual deployment:
-
-```bash
-yarn build
-yarn start
+```sh
+npm run build
+npm start
 ```
 
-## License
+The application is configured for Vercel and includes robots, sitemap, and Open Graph image routes. See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Autonomys Network](https://autonomys.xyz)
-- [Marc-Aurèle Besner](https://github.com/marc-aurele-besner) - Project Creator
-- [React Three Fiber Team](https://github.com/pmndrs)
-- Autonomys Network Community
-
-## Links
-
-- [Live Demo](https://www.ai3.info)
-- [GitHub Repository](https://github.com/marc-aurele-besner/ai3-info)
-- [Auto SDK Documentation](https://github.com/autonomys/auto-sdk)
-- [React Three Fiber Documentation](https://docs.pmnd.rs/react-three-fiber)
-- [Drei Documentation](https://github.com/pmndrs/drei)
-- [Issue Tracker](https://github.com/marc-aurele-besner/ai3-info/issues)
+[MIT license](LICENSE) · Built by [Marc-Aurèle Besner](https://github.com/marc-aurele-besner).

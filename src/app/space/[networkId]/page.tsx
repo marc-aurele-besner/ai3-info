@@ -1,5 +1,4 @@
-import { Footer } from "@/components/Footer";
-import { SceneLoader } from "@/components/SceneLoader";
+import { Observatory } from "@/components/Observatory";
 import {
   images,
   metadata as metadataConstants,
@@ -43,6 +42,8 @@ export const generateMetadata = async ({
   };
 };
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return networks
     .filter((n) => n.isLocalhost === undefined)
@@ -55,18 +56,20 @@ export default async function Home({
   params: Promise<NetworkIdParam>;
 }) {
   const { networkId } = await params;
-  const supported = networks.some((n) => n.id === networkId && n.isLocalhost === undefined);
+  const supported = networks.some(
+    (n) => n.id === networkId && n.isLocalhost === undefined,
+  );
   if (!supported) {
     notFound();
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-screen pt-8 bg-black text-[#576EB2]">
-      <h1 className="text-4xl font-bold mb-4">
-        Autonomys Network Info - {capitalizeFirstLetter(networkId)}
-      </h1>
-      <SceneLoader />
-      <Footer />
-    </div>
+    <Observatory
+      key={networkId}
+      networkId={networkId}
+      networks={networks
+        .filter((network) => network.isLocalhost === undefined)
+        .map(({ id, name }) => ({ id, name }))}
+    />
   );
 }
