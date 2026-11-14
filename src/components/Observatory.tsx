@@ -20,6 +20,8 @@ import {
 import { SceneLoader } from "./SceneLoader";
 import { usePrefersReducedMotion } from "@/utils/hooks";
 import { useNetworkData } from "@/utils/useNetworkData";
+import type { ApiData } from "@/utils/api";
+import { farmingDocsUrl, fieldNotes } from "@/constants/faq";
 import {
   contributionShare,
   formatBytes,
@@ -27,7 +29,12 @@ import {
   storageBytes,
 } from "@/utils/storage";
 
-type Props = { networkId: string; networks: { id: string; name: string }[] };
+type Props = {
+  networkId: string;
+  networks: { id: string; name: string }[];
+  /** Last stored reading, rendered on the server so crawlers see real numbers. */
+  initialData?: ApiData | null;
+};
 const metricInfo = {
   space: {
     title: "Space pledged",
@@ -52,7 +59,7 @@ const metricInfo = {
   },
 } as const;
 
-export function Observatory({ networkId, networks }: Props) {
+export function Observatory({ networkId, networks, initialData }: Props) {
   const router = useRouter();
   const [view, setView] = useState<"station" | "storage">("station");
   const count = view === "station" ? 64 : 125;
@@ -64,7 +71,7 @@ export function Observatory({ networkId, networks }: Props) {
     loading,
     history,
     refresh,
-  } = useNetworkData(networkId, demo);
+  } = useNetworkData(networkId, demo, initialData);
   const data = demo ? SAMPLE_DATA : liveData;
   const [metric, setMetric] = useState<keyof typeof metricInfo>("space");
   const [layout, setLayout] = useState<"globe" | "grid">("globe");
@@ -128,7 +135,7 @@ export function Observatory({ networkId, networks }: Props) {
         Skip to network explorer
       </a>
       <header className="site-header">
-        <Link href="/" className="wordmark" aria-label="AI3 Info home">
+        <Link href="/space/mainnet" className="wordmark" aria-label="AI3 Info home">
           <Image src="/images/ai3-info.svg" alt="" width={42} height={42} />
           <span>AI3 Info</span>
         </Link>
@@ -146,12 +153,16 @@ export function Observatory({ networkId, networks }: Props) {
         <section className="intro">
           <div>
             <p className="eyebrow">Autonomys Network Info</p>
-            <h1>{networkName}</h1>
+            <h1>
+              <span className="sr-only">Autonomys </span>
+              {networkName}
+            </h1>
           </div>
           <div className="intro-aside">
             <p>
-              Explore AI3 in a fun and inviting 3D environment, gain insight on
-              network status and more…
+              See how much storage farmers have pledged to Autonomys{" "}
+              {networkName}, along with its blockchain size and block height,
+              then explore AI3 in a fun and inviting 3D environment.
             </p>
             <a href="#sandbox" className="text-link">
               Try the storage sandbox <FiArrowDown />
@@ -381,7 +392,7 @@ export function Observatory({ networkId, networks }: Props) {
               <h2>{info.label}</h2>
               <p>{info.description}</p>
             </div>
-            <p className="reading-time">
+            <p className="reading-time" suppressHydrationWarning>
               {demo
                 ? "Sample values · not a live network reading"
                 : data?.updatedAt
@@ -467,41 +478,22 @@ export function Observatory({ networkId, networks }: Props) {
             </h2>
           </div>
           <div className="learn-notes">
-            <details>
-              <summary>What am I looking at?</summary>
-              <p>
-                A playful model of the selected network’s totals. The {count}{" "}
-                cells are equal visual portions, not real farmers, locations, or
-                a measure of decentralization. Select a reading, then inspect a
-                cell to connect the model to the numbers.
-              </p>
-            </details>
-            <details>
-              <summary>Why pledge storage?</summary>
-              <p>
-                Autonomys uses proof of archival storage. Farmers contribute
-                disk space to store pieces of the network’s history and
-                participate in consensus. This sandbox compares capacity; actual
-                farming depends on plotting, hardware, and network conditions.
-              </p>
-              <a
-                href="https://docs.autonomys.xyz"
-                target="_blank"
-                rel="noreferrer"
-                className="text-link"
-              >
-                Read the farming documentation <FiArrowUpRight />
-              </a>
-            </details>
-            <details>
-              <summary>How fresh are these numbers?</summary>
-              <p>
-                While this tab is visible, we request a reading every 30
-                seconds. The API may serve cached readings. If a request fails,
-                the last successful reading stays visible and is labeled. Sample
-                data never updates and is not network activity.
-              </p>
-            </details>
+            {fieldNotes(count).map(({ question, answer }) => (
+              <details key={question}>
+                <summary>{question}</summary>
+                <p>{answer}</p>
+                {question === "Why pledge storage?" && (
+                  <a
+                    href={farmingDocsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-link"
+                  >
+                    Read the farming documentation <FiArrowUpRight />
+                  </a>
+                )}
+              </details>
+            ))}
           </div>
         </section>
         <div className="activity-strip">

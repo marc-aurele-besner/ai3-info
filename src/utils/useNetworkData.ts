@@ -3,8 +3,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiData, fetchApiData } from "./api";
 
-export function useNetworkData(networkId: string, demo: boolean) {
-  const [data, setData] = useState<ApiData | null>(null);
+export function useNetworkData(
+  networkId: string,
+  demo: boolean,
+  initialData?: ApiData | null,
+) {
+  // A server-rendered snapshot is shown (labeled as cached) until the first
+  // live poll replaces it.
+  const [data, setData] = useState<ApiData | null>(
+    initialData ? { ...initialData, cached: true } : null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<number[]>([]);
