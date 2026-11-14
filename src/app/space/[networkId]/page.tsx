@@ -1,13 +1,27 @@
 import { Observatory } from "@/components/Observatory";
+import { fieldNotes } from "@/constants/faq";
 import {
   images,
   metadata as metadataConstants,
+  networkDescription,
+  networkJsonLd,
+  networkLabel,
+  networkTitle,
   url,
 } from "@/constants/metadata";
 import type { NetworkIdParam } from "@/types/app";
-import { capitalizeFirstLetter, networks } from "@autonomys/auto-utils";
+import { getNetworkSnapshot } from "@/utils/snapshot";
+import { networks } from "@autonomys/auto-utils";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+// Re-render the prerendered HTML periodically so the server-side snapshot of
+// network readings stays reasonably fresh for crawlers.
+export const revalidate = 300;
+
+const publicNetworks = networks
+  .filter((network) => network.isLocalhost === undefined)
+  .map(({ id, name }) => ({ id, name }));
 
 export const generateMetadata = async ({
   params,
@@ -15,29 +29,36 @@ export const generateMetadata = async ({
   params: Promise<NetworkIdParam>;
 }): Promise<Metadata> => {
   const { networkId } = await params;
+  const network = publicNetworks.find((n) => n.id === networkId);
+  if (!network) return {};
+  const title = networkTitle(network);
+  const description = networkDescription(network);
+  const pageUrl = `${url}/space/${networkId}`;
+  const image = {
+    ...images,
+    url: `${pageUrl}/image`,
+    secureUrl: `${pageUrl}/image`,
+    alt: `Autonomys ${networkLabel(network)} network readings on AI3 Info`,
+  };
   return {
-    ...metadataConstants,
+    title,
+    description,
     openGraph: {
       ...metadataConstants.openGraph,
-      title: `Autonomys Network Info - ${capitalizeFirstLetter(networkId)}`,
-      url: `${url}/space/${networkId}`,
-      images: {
-        ...images,
-        url: `${url}/space/${networkId}/image`,
-        secureUrl: `${url}/space/${networkId}/image`,
-      },
+      title,
+      description,
+      url: pageUrl,
+      images: image,
     },
     twitter: {
       ...metadataConstants.twitter,
-      title: `Autonomys Network Info - ${capitalizeFirstLetter(networkId)}`,
-      images: {
-        ...images,
-        url: `${url}/space/${networkId}/image`,
-        secureUrl: `${url}/space/${networkId}/image`,
-      },
+      title,
+      description,
+      images: image,
     },
     alternates: {
-      canonical: `${url}/space/${networkId}`,
+      ...metadataConstants.alternates,
+      canonical: pageUrl,
     },
   };
 };
@@ -45,9 +66,7 @@ export const generateMetadata = async ({
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  return networks
-    .filter((n) => n.isLocalhost === undefined)
-    .map((n) => ({ networkId: n.id }));
+  return publicNetworks.map((n) => ({ networkId: n.id }));
 }
 
 export default async function Home({
@@ -56,20 +75,27 @@ export default async function Home({
   params: Promise<NetworkIdParam>;
 }) {
   const { networkId } = await params;
-  const supported = networks.some(
-    (n) => n.id === networkId && n.isLocalhost === undefined,
-  );
-  if (!supported) {
+  const network = publicNetworks.find((n) => n.id === networkId);
+  if (!network) {
     notFound();
   }
+  const snapshot = await getNetworkSnapshot(networkId);
+  const jsonLd = networkJsonLd(network, fieldNotes(64), snapshot?.updatedAt);
 
   return (
-    <Observatory
-      key={networkId}
-      networkId={networkId}
-      networks={networks
-        .filter((network) => network.isLocalhost === undefined)
-        .map(({ id, name }) => ({ id, name }))}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <Observatory
+        key={networkId}
+        networkId={networkId}
+        networks={publicNetworks}
+        initialData={snapshot}
+      />
+    </>
   );
 }
