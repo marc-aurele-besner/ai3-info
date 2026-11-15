@@ -780,7 +780,8 @@ input[type="range"] {
     font-size: 10px;
   }
   .share-link {
-    padding-left: 16px;
+    padding-left: 0;
+    border-left: 0;
     font-size: 10px;
   }
   .workspace {
