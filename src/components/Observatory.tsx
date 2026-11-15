@@ -368,7 +368,6 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 <span className="metric-label">
                   <span className={`metric-dot ${metricInfo[key].color}`} />
                   {metricInfo[key].title}
-                  <FiArrowUpRight />
                 </span>
                 <strong>
                   {data

@@ -425,23 +425,22 @@ input[type="range"] {
   width: 100%;
   padding: 18px 12px;
   border-bottom: 1px solid var(--line);
+  border-left: 3px solid transparent;
   border-radius: 2px;
+}
+.metric:hover:not(.active) {
+  background: #0c1426;
+  border-left-color: var(--line);
 }
 .metric.active {
   background: #142039;
-}
-.metric:hover {
-  background: #050810;
+  border-left-color: var(--accent);
 }
 .metric-label {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
-}
-.metric-label svg {
-  margin-left: auto;
-  opacity: 0.6;
 }
 .metric-dot {
   width: 6px;
