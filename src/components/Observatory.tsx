@@ -153,7 +153,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
       <main id="explore">
         <section className="intro">
           <div>
-            <p className="eyebrow">Autonomys Network Info</p>
+            <p className="eyebrow">01 / Autonomys Network Info</p>
             <h1>
               <span className="sr-only">Autonomys </span>
               {networkName}
@@ -475,7 +475,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         </section>
         <section className="field-notes">
           <div>
-            <p className="eyebrow">Field notes</p>
+            <p className="eyebrow">04 / Field notes</p>
             <h2>
               A network made of
               <br />
