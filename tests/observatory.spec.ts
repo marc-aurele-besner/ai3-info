@@ -207,6 +207,9 @@ test("WebGL failure preserves the data and calculator", async ({ page }) => {
 test("loads mainnet directly and preserves the original scene, branding, and footer", async ({
   page,
 }) => {
+  // Parsing the 15 MB ring model, generating text SDFs and compiling shaders
+  // for the lit scene takes ~15s under headless software WebGL.
+  test.slow();
   const assets = new Set<string>();
   page.on("response", (response) => {
     if (response.ok()) assets.add(new URL(response.url()).pathname);
@@ -219,6 +222,14 @@ test("loads mainnet directly and preserves the original scene, branding, and foo
   await expect(
     page.getByRole("button", { name: "Network space", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  // The original scene (15 MB ring model, ~24 lights) renders every frame while
+  // it rotates. Headless Chromium uses software WebGL, where each such frame
+  // takes seconds and starves requestAnimationFrame, so Playwright's
+  // actionability checks never settle. Pausing switches to on-demand renders.
+  await page.getByRole("button", { name: "Pause rotation" }).click();
+  await expect(
+    page.getByRole("button", { name: "Resume rotation" }),
+  ).toBeVisible();
   await expect
     .poll(
       () =>
@@ -228,7 +239,9 @@ test("loads mainnet directly and preserves the original scene, branding, and foo
         assets.has("/fonts/GeistVF.woff"),
     )
     .toBe(true);
-  await expect(page.getByText("Loading network models…")).toHaveCount(0);
+  await expect(page.getByText("Loading network models…")).toHaveCount(0, {
+    timeout: 60_000,
+  });
   await expect(
     page.getByRole("link", { name: "Visit Marc-Aurèle on X (Twitter)" }),
   ).toBeVisible();
