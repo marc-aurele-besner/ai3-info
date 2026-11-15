@@ -161,9 +161,9 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="intro-aside">
             <p>
-              See how much storage farmers have pledged to Autonomys{" "}
-              {networkName}, along with its blockchain size and block height,
-              then explore AI3 in a fun and inviting 3D environment.
+              Watch the live space pledged, chain size and block height of
+              Autonomys {networkName} take shape in 3D, then see how your own
+              storage would compare in the sandbox below.
             </p>
             <a href="#sandbox" className="text-link">
               Try the storage sandbox <FiArrowDown />
