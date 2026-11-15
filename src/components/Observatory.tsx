@@ -10,6 +10,7 @@ import {
   FiArrowUpRight,
   FiBox,
   FiCheck,
+  FiChevronDown,
   FiCircle,
   FiCopy,
   FiPause,
@@ -172,17 +173,22 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         <div className="network-toolbar">
           <div className="network-picker">
             <label htmlFor="network">You’re exploring</label>
-            <select
-              id="network"
-              value={networkId}
-              onChange={(event) => router.push(`/space/${event.target.value}`)}
-            >
-              {networks.map((network) => (
-                <option key={network.id} value={network.id}>
-                  {network.name}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select
+                id="network"
+                value={networkId}
+                onChange={(event) =>
+                  router.push(`/space/${event.target.value}`)
+                }
+              >
+                {networks.map((network) => (
+                  <option key={network.id} value={network.id}>
+                    {network.name}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown aria-hidden="true" />
+            </span>
           </div>
           <div className="connection">
             <span

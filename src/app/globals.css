@@ -219,14 +219,40 @@ button:active:not(:disabled) {
   color: var(--muted);
   font-size: 11px;
 }
+.select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 230px;
+}
+.select-wrap svg {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  color: var(--muted);
+  transition: color 0.2s;
+}
 .network-picker select {
+  appearance: none;
+  -webkit-appearance: none;
   background: transparent;
   border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
   font-weight: 600;
   font-size: 13px;
-  max-width: 230px;
-  padding: 12px 18px 12px 0;
+  max-width: 100%;
+  padding: 10px 30px 8px 0;
   color: var(--foreground);
+  transition: border-color 0.2s;
+}
+.network-picker select:hover,
+.network-picker select:focus-visible {
+  border-bottom-color: var(--accent);
+}
+.select-wrap:hover svg,
+.select-wrap:focus-within svg {
+  color: var(--accent);
 }
 .connection {
   display: flex;
@@ -755,7 +781,7 @@ input[type="range"] {
     width: 100%;
     justify-content: space-between;
   }
-  .network-picker select {
+  .select-wrap {
     max-width: 70%;
   }
   .connection {
