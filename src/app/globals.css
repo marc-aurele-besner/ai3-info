@@ -588,6 +588,10 @@ input[type="range"] {
   font-size: 11px;
   line-height: 1.7;
 }
+.sandbox-result .share-ratio {
+  margin: -6px 0 10px;
+  color: var(--muted);
+}
 .sandbox-result small {
   color: var(--muted);
   display: block;

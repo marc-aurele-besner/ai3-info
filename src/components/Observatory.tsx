@@ -27,6 +27,8 @@ import {
   capacityFromPosition,
   contributionShare,
   formatBytes,
+  formatOneIn,
+  formatShare,
   positionFromCapacity,
   SAMPLE_DATA,
   storageBytes,
@@ -472,11 +474,14 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="sandbox-result" aria-live="polite">
             <span>Share after adding your storage</span>
-            <strong>
-              {share !== null
-                ? `${share.toLocaleString("en-US", { maximumFractionDigits: 6 })}%`
-                : "—"}
-            </strong>
+            <strong>{share !== null ? formatShare(share) : "—"}</strong>
+            {share !== null && (
+              <p className="share-ratio">
+                {formatOneIn(share)
+                  ? `About ${formatOneIn(share)} of the network’s space.`
+                  : "Most of the network’s space."}
+              </p>
+            )}
             <p>
               {share !== null
                 ? `Your ${formatBytes(capacity * 1e12)} + ${data?.spacePledged} currently pledged.`

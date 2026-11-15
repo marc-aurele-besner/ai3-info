@@ -3,6 +3,8 @@ import {
   capacityFromPosition,
   contributionShare,
   formatBytes,
+  formatOneIn,
+  formatShare,
   positionFromCapacity,
   storageBytes,
 } from "../src/utils/storage";
@@ -39,6 +41,16 @@ test("capacity slider maps positions to TB on a log scale", () => {
     );
 });
 
+test("contribution share reads as significant figures and 1 in N", () => {
+  expect(formatShare(4)).toBe("4%");
+  expect(formatShare(contributionShare(1, 2.4e15))).toBe("0.0416%");
+  expect(formatShare(0.0042137)).toBe("0.00421%");
+  expect(formatOneIn(4)).toBe("1 in 25");
+  expect(formatOneIn(contributionShare(1, 2.4e15))).toBe("1 in 2,400");
+  expect(formatOneIn(0.00001)).toBe("1 in 10M");
+  expect(formatOneIn(80)).toBeNull();
+});
+
 test("explore live readings, model controls, inspection, and contribution", async ({
   page,
 }) => {
@@ -69,6 +81,12 @@ test("explore live readings, model controls, inspection, and contribution", asyn
   await expect(page.getByLabel("Spread apart")).toHaveValue("15");
   await page.getByRole("button", { name: "100 TB", exact: true }).click();
   await expect(page.locator(".sandbox-result strong")).toHaveText("4%");
+  await expect(page.locator(".share-ratio")).toHaveText(
+    "About 1 in 25 of the network’s space.",
+  );
+  await expect(
+    page.getByRole("button", { name: "100 TB", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Explore sample data" }).click();
   await expect(page.getByText("Sample data", { exact: true })).toBeVisible();
   await expect(page.getByText(/illustrative sample values/)).toBeVisible();
@@ -111,7 +129,7 @@ test("initial failure, sample mode, cached data, and route changes are honest", 
   ).toBeVisible();
   await expect(page.locator(".sandbox-result strong")).toHaveText("—");
   await page.getByRole("button", { name: "Explore sample data" }).click();
-  await expect(page.locator(".sandbox-result strong")).toHaveText("0.414938%");
+  await expect(page.locator(".sandbox-result strong")).toHaveText("0.415%");
   await page.unroute("**/api/data/**");
   await page.route("**/api/data/**", (route) =>
     route.fulfill({ json: { ...reading, cached: true } }),

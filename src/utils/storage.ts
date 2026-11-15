@@ -45,6 +45,28 @@ export function contributionShare(
   return (added / (networkBytes + added)) * 100;
 }
 
+/** Formats a percentage with three significant figures, e.g. "0.00421%". */
+export function formatShare(percent: number): string {
+  return `${percent.toLocaleString("en-US", { maximumSignificantDigits: 3 })}%`;
+}
+
+/**
+ * Expresses a percentage share as "1 in N", e.g. "1 in 240" or "1 in 2.4M".
+ * Returns null when the share is too large for the phrase to make sense.
+ */
+export function formatOneIn(percent: number): string | null {
+  if (!Number.isFinite(percent) || percent <= 0) return null;
+  const n = 100 / percent;
+  if (n < 2) return null;
+  const rounded = Number(n.toPrecision(n < 1000 ? 3 : 2));
+  return `1 in ${rounded.toLocaleString(
+    "en-US",
+    rounded < 1e6
+      ? { maximumFractionDigits: 0 }
+      : { notation: "compact", maximumSignificantDigits: 2 },
+  )}`;
+}
+
 /** Bounds of the logarithmic storage contribution slider. */
 export const CAPACITY_MIN_TB = 1;
 export const CAPACITY_MAX_TB = 1024;
