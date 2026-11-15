@@ -1037,6 +1037,13 @@ input[type="range"] {
 .view-switch button {
   min-height: 36px;
 }
+.model-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
 .model-loading {
   background: #101a2c;
   padding: 12px 18px;
