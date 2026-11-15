@@ -257,6 +257,11 @@ button:active:not(:disabled) {
 .connection .icon-button {
   border: 0;
 }
+.connection .freshness {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .sample-toggle {
   border-left: 1px solid var(--line);
   padding-left: 24px;

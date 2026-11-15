@@ -87,8 +87,12 @@ test("explore live readings, model controls, inspection, and contribution", asyn
   await expect(
     page.getByRole("button", { name: "100 TB", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".connection .freshness")).toHaveText(
+    /^Updated \d+[smhd] ago$/,
+  );
   await page.getByRole("button", { name: "Explore sample data" }).click();
   await expect(page.getByText("Sample data", { exact: true })).toBeVisible();
+  await expect(page.locator(".connection .freshness")).toHaveCount(0);
   await expect(page.getByText(/illustrative sample values/)).toBeVisible();
   expect(errors).toEqual([]);
 });

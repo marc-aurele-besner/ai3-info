@@ -18,7 +18,7 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import { SceneLoader } from "./SceneLoader";
-import { usePrefersReducedMotion } from "@/utils/hooks";
+import { formatAge, useNow, usePrefersReducedMotion } from "@/utils/hooks";
 import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
 import { farmingDocsUrl, fieldNotes } from "@/constants/faq";
@@ -97,6 +97,11 @@ export function Observatory({ networkId, networks, initialData }: Props) {
     pledged !== null && pledged > 0
       ? contributionShare(capacity, pledged)
       : null;
+  const parsedUpdatedAt =
+    !demo && data?.updatedAt ? Date.parse(data.updatedAt) : NaN;
+  const updatedMs = Number.isFinite(parsedUpdatedAt) ? parsedUpdatedAt : null;
+  // Ticks outside the role="status" region so it is not announced every second.
+  const now = useNow(1000, updatedMs !== null);
   const info = metricInfo[metric];
   const stale =
     !demo &&
@@ -194,6 +199,15 @@ export function Observatory({ networkId, networks, initialData }: Props) {
               className={`status-dot ${demo || stale || error ? "muted" : ""}`}
             />
             <span role="status">{status}</span>
+            {now !== null && updatedMs !== null && (
+              <time
+                className="freshness"
+                dateTime={data?.updatedAt}
+                title={new Date(updatedMs).toLocaleString()}
+              >
+                Updated {formatAge(now - updatedMs)}
+              </time>
+            )}
             <button
               className="icon-button"
               onClick={refresh}
