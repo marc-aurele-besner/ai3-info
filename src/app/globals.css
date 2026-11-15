@@ -634,6 +634,16 @@ input[type="range"] {
   margin-top: 8px;
   overflow-wrap: anywhere;
 }
+.block-sparkline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+.block-sparkline svg {
+  flex-shrink: 0;
+  overflow: visible;
+}
 .site-footer {
   padding: 27px 0;
   border-top: 1px solid var(--line);

@@ -18,6 +18,7 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import { SceneLoader } from "./SceneLoader";
+import { BlockSparkline } from "./BlockSparkline";
 import { usePrefersReducedMotion } from "@/utils/hooks";
 import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
@@ -500,13 +501,13 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           <div>
             <span className="eyebrow">Observed this visit</span>
             <p>
-              {demo
-                ? "Sample mode · live observation paused"
-                : history.length > 1
-                  ? history
-                      .map((height) => `#${height.toLocaleString("en-US")}`)
-                      .join(" → ")
-                  : "New block readings will appear here as the network updates."}
+              {demo ? (
+                "Sample mode · live observation paused"
+              ) : history.length > 1 ? (
+                <BlockSparkline history={history} />
+              ) : (
+                "New block readings will appear here as the network updates."
+              )}
             </p>
           </div>
           <button className="text-button" onClick={copyLink}>
