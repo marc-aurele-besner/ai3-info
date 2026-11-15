@@ -250,6 +250,11 @@ button:active:not(:disabled) {
 .connection .icon-button {
   border: 0;
 }
+.connection .freshness {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .sample-toggle,
 .share-link {
   border-left: 1px solid var(--line);
@@ -580,6 +585,10 @@ input[type="range"] {
 .sandbox-result p {
   font-size: 12px;
   line-height: 1.7;
+}
+.sandbox-result .share-ratio {
+  margin: -6px 0 10px;
+  color: var(--muted);
 }
 .sandbox-result small {
   color: var(--muted);

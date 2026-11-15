@@ -19,13 +19,18 @@ import {
 } from "react-icons/fi";
 import { SceneLoader } from "./SceneLoader";
 import { BlockSparkline } from "./BlockSparkline";
-import { usePrefersReducedMotion } from "@/utils/hooks";
+import { formatAge, useNow, usePrefersReducedMotion } from "@/utils/hooks";
 import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
 import { farmingDocsUrl, fieldNotes } from "@/constants/faq";
 import {
+  CAPACITY_STEPS,
+  capacityFromPosition,
   contributionShare,
   formatBytes,
+  formatOneIn,
+  formatShare,
+  positionFromCapacity,
   SAMPLE_DATA,
   storageBytes,
 } from "@/utils/storage";
@@ -93,6 +98,11 @@ export function Observatory({ networkId, networks, initialData }: Props) {
     pledged !== null && pledged > 0
       ? contributionShare(capacity, pledged)
       : null;
+  const parsedUpdatedAt =
+    !demo && data?.updatedAt ? Date.parse(data.updatedAt) : NaN;
+  const updatedMs = Number.isFinite(parsedUpdatedAt) ? parsedUpdatedAt : null;
+  // Ticks outside the role="status" region so it is not announced every second.
+  const now = useNow(1000, updatedMs !== null);
   const info = metricInfo[metric];
   const stale =
     !demo &&
@@ -181,6 +191,15 @@ export function Observatory({ networkId, networks, initialData }: Props) {
               className={`status-dot ${demo || stale || error ? "muted" : ""}`}
             />
             <span role="status">{status}</span>
+            {now !== null && updatedMs !== null && (
+              <time
+                className="freshness"
+                dateTime={data?.updatedAt}
+                title={new Date(updatedMs).toLocaleString()}
+              >
+                Updated {formatAge(now - updatedMs)}
+              </time>
+            )}
             <button
               className="icon-button"
               onClick={refresh}
@@ -431,14 +450,31 @@ export function Observatory({ networkId, networks, initialData }: Props) {
             <input
               id="capacity"
               type="range"
-              min="1"
-              max="1024"
+              min="0"
+              max={CAPACITY_STEPS}
               step="1"
-              value={capacity}
-              onChange={(event) => setCapacity(Number(event.target.value))}
+              value={positionFromCapacity(capacity)}
+              aria-valuetext={`${capacity.toLocaleString("en-US")} TB`}
+              onChange={(event) => {
+                let position = Number(event.target.value);
+                // Several positions round to the same TB; keep stepping in the
+                // same direction so arrow keys always change the value.
+                const direction = Math.sign(
+                  position - positionFromCapacity(capacity),
+                );
+                while (
+                  direction !== 0 &&
+                  capacityFromPosition(position) === capacity &&
+                  position > 0 &&
+                  position < CAPACITY_STEPS
+                )
+                  position += direction;
+                setCapacity(capacityFromPosition(position));
+              }}
             />
             <div className="range-labels">
               <span>1 TB</span>
+              <span>32 TB</span>
               <span>1,024 TB</span>
             </div>
             <div className="presets">
@@ -455,11 +491,14 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="sandbox-result" aria-live="polite">
             <span>Share after adding your storage</span>
-            <strong>
-              {share !== null
-                ? `${share.toLocaleString("en-US", { maximumFractionDigits: 6 })}%`
-                : "—"}
-            </strong>
+            <strong>{share !== null ? formatShare(share) : "—"}</strong>
+            {share !== null && (
+              <p className="share-ratio">
+                {formatOneIn(share)
+                  ? `About ${formatOneIn(share)} of the network’s space.`
+                  : "Most of the network’s space."}
+              </p>
+            )}
             <p>
               {share !== null
                 ? `Your ${formatBytes(capacity * 1e12)} + ${data?.spacePledged} currently pledged.`
