@@ -257,7 +257,8 @@ button:active:not(:disabled) {
 .connection .icon-button {
   border: 0;
 }
-.sample-toggle {
+.sample-toggle,
+.share-link {
   border-left: 1px solid var(--line);
   padding-left: 24px;
 }
@@ -776,6 +777,10 @@ input[type="range"] {
     margin-left: auto;
     padding-left: 0;
     border-left: 0;
+    font-size: 10px;
+  }
+  .share-link {
+    padding-left: 16px;
     font-size: 10px;
   }
   .workspace {

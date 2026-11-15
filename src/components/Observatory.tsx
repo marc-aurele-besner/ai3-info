@@ -205,7 +205,19 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           >
             {demo ? "Return to live data" : "Explore sample data"}
           </button>
+          <button className="text-button share-link" onClick={copyLink}>
+            {copied ? <FiCheck /> : <FiCopy />}
+            {copied ? "Link copied" : "Copy link"}
+          </button>
+          <span className="sr-only" role="status">
+            {copied ? "Network link copied" : ""}
+          </span>
         </div>
+        {copyError && (
+          <div className="notice" role="status">
+            Copy this network URL from your browser’s address bar.
+          </div>
+        )}
         {error && !demo && (
           <div className="notice" role="status">
             {error} {data && "The last successful reading is still shown."}
@@ -510,18 +522,6 @@ export function Observatory({ networkId, networks, initialData }: Props) {
               )}
             </p>
           </div>
-          <button className="text-button" onClick={copyLink}>
-            {copied ? <FiCheck /> : <FiCopy />}
-            {copied ? "Link copied" : "Copy network link"}
-          </button>
-          <span className="sr-only" role="status">
-            {copied ? "Network link copied" : ""}
-          </span>
-          {copyError && (
-            <p role="status">
-              Copy this network URL from your browser’s address bar.
-            </p>
-          )}
         </div>
       </main>
       <Footer />
