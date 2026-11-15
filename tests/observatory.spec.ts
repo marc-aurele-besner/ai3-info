@@ -1,7 +1,11 @@
 import { expect, test } from "@playwright/test";
 import {
+  capacityFromPosition,
   contributionShare,
   formatBytes,
+  formatOneIn,
+  formatShare,
+  positionFromCapacity,
   storageBytes,
 } from "../src/utils/storage";
 
@@ -23,6 +27,28 @@ test("storage calculations preserve decimal units and reject unavailable values"
   expect(formatBytes(0)).toBe("0 B");
   expect(formatBytes(1e12)).toBe("1 TB");
   expect(contributionShare(100, 2.4e15)).toBe(4);
+});
+
+test("capacity slider maps positions to TB on a log scale", () => {
+  expect(capacityFromPosition(0)).toBe(1);
+  expect(capacityFromPosition(500)).toBe(32);
+  expect(capacityFromPosition(1000)).toBe(1024);
+  for (const tb of [1, 10, 100, 1000, 1024])
+    expect(capacityFromPosition(positionFromCapacity(tb))).toBe(tb);
+  for (let position = 1; position <= 1000; position++)
+    expect(capacityFromPosition(position)).toBeGreaterThanOrEqual(
+      capacityFromPosition(position - 1),
+    );
+});
+
+test("contribution share reads as significant figures and 1 in N", () => {
+  expect(formatShare(4)).toBe("4%");
+  expect(formatShare(contributionShare(1, 2.4e15))).toBe("0.0416%");
+  expect(formatShare(0.0042137)).toBe("0.00421%");
+  expect(formatOneIn(4)).toBe("1 in 25");
+  expect(formatOneIn(contributionShare(1, 2.4e15))).toBe("1 in 2,400");
+  expect(formatOneIn(0.00001)).toBe("1 in 10M");
+  expect(formatOneIn(80)).toBeNull();
 });
 
 test("explore live readings, model controls, inspection, and contribution", async ({
@@ -55,8 +81,18 @@ test("explore live readings, model controls, inspection, and contribution", asyn
   await expect(page.getByLabel("Spread apart")).toHaveValue("15");
   await page.getByRole("button", { name: "100 TB", exact: true }).click();
   await expect(page.locator(".sandbox-result strong")).toHaveText("4%");
+  await expect(page.locator(".share-ratio")).toHaveText(
+    "About 1 in 25 of the network’s space.",
+  );
+  await expect(
+    page.getByRole("button", { name: "100 TB", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".connection .freshness")).toHaveText(
+    /^Updated \d+[smhd] ago$/,
+  );
   await page.getByRole("button", { name: "Explore sample data" }).click();
   await expect(page.getByText("Sample data", { exact: true })).toBeVisible();
+  await expect(page.locator(".connection .freshness")).toHaveCount(0);
   await expect(page.getByText(/illustrative sample values/)).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -97,7 +133,7 @@ test("initial failure, sample mode, cached data, and route changes are honest", 
   ).toBeVisible();
   await expect(page.locator(".sandbox-result strong")).toHaveText("—");
   await page.getByRole("button", { name: "Explore sample data" }).click();
-  await expect(page.locator(".sandbox-result strong")).toHaveText("0.414938%");
+  await expect(page.locator(".sandbox-result strong")).toHaveText("0.415%");
   await page.unroute("**/api/data/**");
   await page.route("**/api/data/**", (route) =>
     route.fulfill({ json: { ...reading, cached: true } }),
@@ -130,7 +166,16 @@ test("mobile and reduced motion keep all controls usable", async ({ page }) => {
   await expect(page.getByText("Cell 001", { exact: true })).toBeVisible();
   await page.getByLabel("Your storage contribution").focus();
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByLabel("Your storage contribution")).toHaveValue("11");
+  await expect(page.getByLabel("Your storage contribution")).toHaveAttribute(
+    "aria-valuetext",
+    "11 TB",
+  );
+  await expect(page.locator(".capacity-value output")).toHaveText("11");
+  await page.getByRole("button", { name: "1 TB", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "1 TB", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Your storage contribution")).toHaveValue("0");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

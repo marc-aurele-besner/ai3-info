@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { Footer } from "./Footer";
+import { SiteHeader } from "./SiteHeader";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -10,6 +9,7 @@ import {
   FiArrowUpRight,
   FiBox,
   FiCheck,
+  FiChevronDown,
   FiCircle,
   FiCopy,
   FiPause,
@@ -18,13 +18,19 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import { SceneLoader } from "./SceneLoader";
-import { usePrefersReducedMotion } from "@/utils/hooks";
+import { BlockSparkline } from "./BlockSparkline";
+import { formatAge, useNow, usePrefersReducedMotion } from "@/utils/hooks";
 import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
 import { farmingDocsUrl, fieldNotes } from "@/constants/faq";
 import {
+  CAPACITY_STEPS,
+  capacityFromPosition,
   contributionShare,
   formatBytes,
+  formatOneIn,
+  formatShare,
+  positionFromCapacity,
   SAMPLE_DATA,
   storageBytes,
 } from "@/utils/storage";
@@ -92,6 +98,11 @@ export function Observatory({ networkId, networks, initialData }: Props) {
     pledged !== null && pledged > 0
       ? contributionShare(capacity, pledged)
       : null;
+  const parsedUpdatedAt =
+    !demo && data?.updatedAt ? Date.parse(data.updatedAt) : NaN;
+  const updatedMs = Number.isFinite(parsedUpdatedAt) ? parsedUpdatedAt : null;
+  // Ticks outside the role="status" region so it is not announced every second.
+  const now = useNow(1000, updatedMs !== null);
   const info = metricInfo[metric];
   const stale =
     !demo &&
@@ -134,25 +145,11 @@ export function Observatory({ networkId, networks, initialData }: Props) {
       <a className="skip-link" href="#explore">
         Skip to network explorer
       </a>
-      <header className="site-header">
-        <Link href="/space/mainnet" className="wordmark" aria-label="AI3 Info home">
-          <Image src="/images/ai3-info.svg" alt="" width={42} height={42} />
-          <span>AI3 Info</span>
-        </Link>
-        <span className="header-caption">Explore the Autonomys Network</span>
-        <a
-          className="text-link"
-          href="https://autonomys.xyz"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Meet Autonomys <FiArrowUpRight />
-        </a>
-      </header>
+      <SiteHeader />
       <main id="explore">
         <section className="intro">
           <div>
-            <p className="eyebrow">Autonomys Network Info</p>
+            <p className="eyebrow">01 / Autonomys Network Info</p>
             <h1>
               <span className="sr-only">Autonomys </span>
               {networkName}
@@ -160,9 +157,9 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="intro-aside">
             <p>
-              See how much storage farmers have pledged to Autonomys{" "}
-              {networkName}, along with its blockchain size and block height,
-              then explore AI3 in a fun and inviting 3D environment.
+              Watch the live space pledged, chain size and block height of
+              Autonomys {networkName} take shape in 3D, then see how your own
+              storage would compare in the sandbox below.
             </p>
             <a href="#sandbox" className="text-link">
               Try the storage sandbox <FiArrowDown />
@@ -172,23 +169,37 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         <div className="network-toolbar">
           <div className="network-picker">
             <label htmlFor="network">You’re exploring</label>
-            <select
-              id="network"
-              value={networkId}
-              onChange={(event) => router.push(`/space/${event.target.value}`)}
-            >
-              {networks.map((network) => (
-                <option key={network.id} value={network.id}>
-                  {network.name}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select
+                id="network"
+                value={networkId}
+                onChange={(event) =>
+                  router.push(`/space/${event.target.value}`)
+                }
+              >
+                {networks.map((network) => (
+                  <option key={network.id} value={network.id}>
+                    {network.name}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown aria-hidden="true" />
+            </span>
           </div>
           <div className="connection">
             <span
               className={`status-dot ${demo || stale || error ? "muted" : ""}`}
             />
             <span role="status">{status}</span>
+            {now !== null && updatedMs !== null && (
+              <time
+                className="freshness"
+                dateTime={data?.updatedAt}
+                title={new Date(updatedMs).toLocaleString()}
+              >
+                Updated {formatAge(now - updatedMs)}
+              </time>
+            )}
             <button
               className="icon-button"
               onClick={refresh}
@@ -204,7 +215,19 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           >
             {demo ? "Return to live data" : "Explore sample data"}
           </button>
+          <button className="text-button share-link" onClick={copyLink}>
+            {copied ? <FiCheck /> : <FiCopy />}
+            {copied ? "Link copied" : "Copy link"}
+          </button>
+          <span className="sr-only" role="status">
+            {copied ? "Network link copied" : ""}
+          </span>
         </div>
+        {copyError && (
+          <div className="notice" role="status">
+            Copy this network URL from your browser’s address bar.
+          </div>
+        )}
         {error && !demo && (
           <div className="notice" role="status">
             {error} {data && "The last successful reading is still shown."}
@@ -368,7 +391,6 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 <span className="metric-label">
                   <span className={`metric-dot ${metricInfo[key].color}`} />
                   {metricInfo[key].title}
-                  <FiArrowUpRight />
                 </span>
                 <strong>
                   {data
@@ -428,14 +450,31 @@ export function Observatory({ networkId, networks, initialData }: Props) {
             <input
               id="capacity"
               type="range"
-              min="1"
-              max="1024"
+              min="0"
+              max={CAPACITY_STEPS}
               step="1"
-              value={capacity}
-              onChange={(event) => setCapacity(Number(event.target.value))}
+              value={positionFromCapacity(capacity)}
+              aria-valuetext={`${capacity.toLocaleString("en-US")} TB`}
+              onChange={(event) => {
+                let position = Number(event.target.value);
+                // Several positions round to the same TB; keep stepping in the
+                // same direction so arrow keys always change the value.
+                const direction = Math.sign(
+                  position - positionFromCapacity(capacity),
+                );
+                while (
+                  direction !== 0 &&
+                  capacityFromPosition(position) === capacity &&
+                  position > 0 &&
+                  position < CAPACITY_STEPS
+                )
+                  position += direction;
+                setCapacity(capacityFromPosition(position));
+              }}
             />
             <div className="range-labels">
               <span>1 TB</span>
+              <span>32 TB</span>
               <span>1,024 TB</span>
             </div>
             <div className="presets">
@@ -452,11 +491,14 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="sandbox-result" aria-live="polite">
             <span>Share after adding your storage</span>
-            <strong>
-              {share !== null
-                ? `${share.toLocaleString("en-US", { maximumFractionDigits: 6 })}%`
-                : "—"}
-            </strong>
+            <strong>{share !== null ? formatShare(share) : "—"}</strong>
+            {share !== null && (
+              <p className="share-ratio">
+                {formatOneIn(share)
+                  ? `About ${formatOneIn(share)} of the network’s space.`
+                  : "Most of the network’s space."}
+              </p>
+            )}
             <p>
               {share !== null
                 ? `Your ${formatBytes(capacity * 1e12)} + ${data?.spacePledged} currently pledged.`
@@ -470,7 +512,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         </section>
         <section className="field-notes">
           <div>
-            <p className="eyebrow">Field notes</p>
+            <p className="eyebrow">04 / Field notes</p>
             <h2>
               A network made of
               <br />
@@ -500,27 +542,15 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           <div>
             <span className="eyebrow">Observed this visit</span>
             <p>
-              {demo
-                ? "Sample mode · live observation paused"
-                : history.length > 1
-                  ? history
-                      .map((height) => `#${height.toLocaleString("en-US")}`)
-                      .join(" → ")
-                  : "New block readings will appear here as the network updates."}
+              {demo ? (
+                "Sample mode · live observation paused"
+              ) : history.length > 1 ? (
+                <BlockSparkline history={history} />
+              ) : (
+                "New block readings will appear here as the network updates."
+              )}
             </p>
           </div>
-          <button className="text-button" onClick={copyLink}>
-            {copied ? <FiCheck /> : <FiCopy />}
-            {copied ? "Link copied" : "Copy network link"}
-          </button>
-          <span className="sr-only" role="status">
-            {copied ? "Network link copied" : ""}
-          </span>
-          {copyError && (
-            <p role="status">
-              Copy this network URL from your browser’s address bar.
-            </p>
-          )}
         </div>
       </main>
       <Footer />
