@@ -44,3 +44,39 @@ export function contributionShare(
   const added = terabytes * 1e12;
   return (added / (networkBytes + added)) * 100;
 }
+
+/** Bounds of the logarithmic storage contribution slider. */
+export const CAPACITY_MIN_TB = 1;
+export const CAPACITY_MAX_TB = 1024;
+export const CAPACITY_STEPS = 1000;
+
+const capacityLogRange = Math.log(CAPACITY_MAX_TB / CAPACITY_MIN_TB);
+
+// Whole TB below 100, then steps of 5 and 10 so large values land on round numbers.
+function roundCapacity(terabytes: number): number {
+  const step = terabytes < 100 ? 1 : terabytes < 500 ? 5 : 10;
+  return Math.round(terabytes / step) * step;
+}
+
+/** Maps a slider position (0–CAPACITY_STEPS) to TB on a log scale. */
+export function capacityFromPosition(position: number): number {
+  if (position <= 0) return CAPACITY_MIN_TB;
+  if (position >= CAPACITY_STEPS) return CAPACITY_MAX_TB;
+  const raw =
+    CAPACITY_MIN_TB * Math.exp((position / CAPACITY_STEPS) * capacityLogRange);
+  return Math.min(
+    CAPACITY_MAX_TB,
+    Math.max(CAPACITY_MIN_TB, roundCapacity(raw)),
+  );
+}
+
+/** Inverse of capacityFromPosition, rounded to the nearest slider position. */
+export function positionFromCapacity(terabytes: number): number {
+  const clamped = Math.min(
+    CAPACITY_MAX_TB,
+    Math.max(CAPACITY_MIN_TB, terabytes),
+  );
+  return Math.round(
+    (Math.log(clamped / CAPACITY_MIN_TB) / capacityLogRange) * CAPACITY_STEPS,
+  );
+}

@@ -23,8 +23,11 @@ import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
 import { farmingDocsUrl, fieldNotes } from "@/constants/faq";
 import {
+  CAPACITY_STEPS,
+  capacityFromPosition,
   contributionShare,
   formatBytes,
+  positionFromCapacity,
   SAMPLE_DATA,
   storageBytes,
 } from "@/utils/storage";
@@ -428,14 +431,31 @@ export function Observatory({ networkId, networks, initialData }: Props) {
             <input
               id="capacity"
               type="range"
-              min="1"
-              max="1024"
+              min="0"
+              max={CAPACITY_STEPS}
               step="1"
-              value={capacity}
-              onChange={(event) => setCapacity(Number(event.target.value))}
+              value={positionFromCapacity(capacity)}
+              aria-valuetext={`${capacity.toLocaleString("en-US")} TB`}
+              onChange={(event) => {
+                let position = Number(event.target.value);
+                // Several positions round to the same TB; keep stepping in the
+                // same direction so arrow keys always change the value.
+                const direction = Math.sign(
+                  position - positionFromCapacity(capacity),
+                );
+                while (
+                  direction !== 0 &&
+                  capacityFromPosition(position) === capacity &&
+                  position > 0 &&
+                  position < CAPACITY_STEPS
+                )
+                  position += direction;
+                setCapacity(capacityFromPosition(position));
+              }}
             />
             <div className="range-labels">
               <span>1 TB</span>
+              <span>32 TB</span>
               <span>1,024 TB</span>
             </div>
             <div className="presets">

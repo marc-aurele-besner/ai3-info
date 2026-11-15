@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import {
+  capacityFromPosition,
   contributionShare,
   formatBytes,
+  positionFromCapacity,
   storageBytes,
 } from "../src/utils/storage";
 
@@ -23,6 +25,18 @@ test("storage calculations preserve decimal units and reject unavailable values"
   expect(formatBytes(0)).toBe("0 B");
   expect(formatBytes(1e12)).toBe("1 TB");
   expect(contributionShare(100, 2.4e15)).toBe(4);
+});
+
+test("capacity slider maps positions to TB on a log scale", () => {
+  expect(capacityFromPosition(0)).toBe(1);
+  expect(capacityFromPosition(500)).toBe(32);
+  expect(capacityFromPosition(1000)).toBe(1024);
+  for (const tb of [1, 10, 100, 1000, 1024])
+    expect(capacityFromPosition(positionFromCapacity(tb))).toBe(tb);
+  for (let position = 1; position <= 1000; position++)
+    expect(capacityFromPosition(position)).toBeGreaterThanOrEqual(
+      capacityFromPosition(position - 1),
+    );
 });
 
 test("explore live readings, model controls, inspection, and contribution", async ({
@@ -130,7 +144,16 @@ test("mobile and reduced motion keep all controls usable", async ({ page }) => {
   await expect(page.getByText("Cell 001", { exact: true })).toBeVisible();
   await page.getByLabel("Your storage contribution").focus();
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByLabel("Your storage contribution")).toHaveValue("11");
+  await expect(page.getByLabel("Your storage contribution")).toHaveAttribute(
+    "aria-valuetext",
+    "11 TB",
+  );
+  await expect(page.locator(".capacity-value output")).toHaveText("11");
+  await page.getByRole("button", { name: "1 TB", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "1 TB", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Your storage contribution")).toHaveValue("0");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
