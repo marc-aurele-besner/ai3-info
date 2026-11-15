@@ -98,25 +98,10 @@ button:active:not(:disabled) {
 .wordmark {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 29px;
+  gap: 12px;
+  font-size: 23px;
   font-weight: 650;
-  letter-spacing: -2px;
-}
-.brand-mark {
-  background: var(--foreground);
-  color: var(--background);
-  display: grid;
-  place-items: center;
-  width: 47px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 27px;
-  letter-spacing: -3px;
-  padding-right: 4px;
-}
-.brand-dot {
-  color: var(--accent);
+  letter-spacing: -0.04em;
 }
 .header-caption {
   margin-right: auto;
@@ -145,7 +130,7 @@ button:active:not(:disabled) {
   grid-template-columns: 1.5fr 1fr;
   align-items: end;
   gap: 40px;
-  padding: 55px 0 45px;
+  padding: 32px 0;
 }
 .eyebrow {
   font-size: 10px;
@@ -156,29 +141,11 @@ button:active:not(:disabled) {
   align-items: center;
   gap: 10px;
 }
-.tiny-orbit {
-  width: 15px;
-  height: 15px;
-  border: 1px solid var(--accent);
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-}
-.tiny-orbit::after {
-  content: "";
-  width: 5px;
-  height: 5px;
-  background: var(--accent);
-  border-radius: 50%;
-  position: absolute;
-  top: -2px;
-  right: 0;
-}
 .observatory h1 {
-  font-size: clamp(50px, 5.8vw, 88px);
+  font-size: clamp(32px, 4vw, 56px);
   line-height: 0.99;
-  letter-spacing: -0.065em;
-  font-weight: 450;
+  letter-spacing: -0.035em;
+  font-weight: 650;
   margin: 20px 0 0;
 }
 .observatory em {
@@ -734,7 +701,6 @@ input[type="range"] {
   .intro {
     grid-template-columns: 1fr;
     gap: 22px;
-    padding: 36px 0 28px;
   }
   .intro-aside {
     justify-self: start;
@@ -743,9 +709,6 @@ input[type="range"] {
   .intro-aside p {
     font-size: 13px;
     margin: 0 0 16px;
-  }
-  .observatory h1 {
-    font-size: clamp(52px, 10vw, 76px);
   }
   .network-toolbar {
     gap: 8px 16px;
@@ -900,19 +863,6 @@ input[type="range"] {
   }
 }
 
-.observatory h1 {
-  font-size: clamp(32px, 4vw, 56px);
-  font-weight: 650;
-  letter-spacing: -0.035em;
-}
-.observatory .intro {
-  padding: 32px 0;
-}
-.wordmark {
-  letter-spacing: -0.04em;
-  font-size: 23px;
-  gap: 12px;
-}
 .network-picker select,
 .network-picker option {
   background: #050810;
