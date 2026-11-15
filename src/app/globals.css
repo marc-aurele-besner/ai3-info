@@ -678,6 +678,32 @@ input[type="range"] {
     transform: rotate(360deg);
   }
 }
+.status-page {
+  min-height: calc(100vh - 220px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 640px;
+  padding: 64px 0;
+}
+.status-page > p:not(.eyebrow) {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+  margin: 21px 0 28px;
+  overflow-wrap: anywhere;
+}
+.status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 32px;
+}
+.status-actions .text-link,
+.status-actions .text-button {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
 @media (min-width: 1400px) {
   .scene-wrap {
     height: 580px;
