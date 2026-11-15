@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiData, fetchApiData } from "./api";
 
+// How many distinct block heights a visit keeps for the activity sparkline.
+export const HISTORY_LIMIT = 24;
+
 export function useNetworkData(
   networkId: string,
   demo: boolean,
@@ -41,7 +44,7 @@ export function useNetworkData(
         setHistory((previous) =>
           previous.at(-1) === next.blockHeight
             ? previous
-            : [...previous, next.blockHeight].slice(-6),
+            : [...previous, next.blockHeight].slice(-HISTORY_LIMIT),
         );
       } catch {
         if (!disposed)

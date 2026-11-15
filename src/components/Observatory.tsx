@@ -18,6 +18,7 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import { SceneLoader } from "./SceneLoader";
+import { BlockSparkline } from "./BlockSparkline";
 import { usePrefersReducedMotion } from "@/utils/hooks";
 import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
@@ -146,9 +147,9 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="intro-aside">
             <p>
-              See how much storage farmers have pledged to Autonomys{" "}
-              {networkName}, along with its blockchain size and block height,
-              then explore AI3 in a fun and inviting 3D environment.
+              Watch the live space pledged, chain size and block height of
+              Autonomys {networkName} take shape in 3D, then see how your own
+              storage would compare in the sandbox below.
             </p>
             <a href="#sandbox" className="text-link">
               Try the storage sandbox <FiArrowDown />
@@ -195,7 +196,19 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           >
             {demo ? "Return to live data" : "Explore sample data"}
           </button>
+          <button className="text-button share-link" onClick={copyLink}>
+            {copied ? <FiCheck /> : <FiCopy />}
+            {copied ? "Link copied" : "Copy link"}
+          </button>
+          <span className="sr-only" role="status">
+            {copied ? "Network link copied" : ""}
+          </span>
         </div>
+        {copyError && (
+          <div className="notice" role="status">
+            Copy this network URL from your browser’s address bar.
+          </div>
+        )}
         {error && !demo && (
           <div className="notice" role="status">
             {error} {data && "The last successful reading is still shown."}
@@ -490,27 +503,15 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           <div>
             <span className="eyebrow">Observed this visit</span>
             <p>
-              {demo
-                ? "Sample mode · live observation paused"
-                : history.length > 1
-                  ? history
-                      .map((height) => `#${height.toLocaleString("en-US")}`)
-                      .join(" → ")
-                  : "New block readings will appear here as the network updates."}
+              {demo ? (
+                "Sample mode · live observation paused"
+              ) : history.length > 1 ? (
+                <BlockSparkline history={history} />
+              ) : (
+                "New block readings will appear here as the network updates."
+              )}
             </p>
           </div>
-          <button className="text-button" onClick={copyLink}>
-            {copied ? <FiCheck /> : <FiCopy />}
-            {copied ? "Link copied" : "Copy network link"}
-          </button>
-          <span className="sr-only" role="status">
-            {copied ? "Network link copied" : ""}
-          </span>
-          {copyError && (
-            <p role="status">
-              Copy this network URL from your browser’s address bar.
-            </p>
-          )}
         </div>
       </main>
       <Footer />

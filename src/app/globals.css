@@ -250,7 +250,8 @@ button:active:not(:disabled) {
 .connection .icon-button {
   border: 0;
 }
-.sample-toggle {
+.sample-toggle,
+.share-link {
   border-left: 1px solid var(--line);
   padding-left: 24px;
 }
@@ -626,6 +627,16 @@ input[type="range"] {
   margin-top: 8px;
   overflow-wrap: anywhere;
 }
+.block-sparkline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+.block-sparkline svg {
+  flex-shrink: 0;
+  overflow: visible;
+}
 .site-footer {
   margin-top: 24px;
   padding: 27px 0;
@@ -879,6 +890,11 @@ input[type="range"] {
     padding-left: 0;
     border-left: 0;
     font-size: 11px;
+  }
+  .share-link {
+    padding-left: 0;
+    border-left: 0;
+    font-size: 10px;
   }
   .workspace {
     grid-template-columns: 1fr;
