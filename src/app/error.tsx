@@ -1,7 +1,10 @@
 "use client";
 
+import { Footer } from "@/components/Footer";
+import { SiteHeader } from "@/components/SiteHeader";
 import Link from "next/link";
 import { useEffect } from "react";
+import { FiArrowRight, FiRefreshCw } from "react-icons/fi";
 
 interface ErrorPageProps {
   error: Error;
@@ -14,29 +17,22 @@ export default function Error({ error, reset }: ErrorPageProps) {
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-[#576EB2]">
-      <div className="text-center px-4">
-        <h1 className="text-4xl font-bold mb-4 text-center text-red-500">
-          Oops! Something went wrong
-        </h1>
-        <p className="text-lg mb-8 text-center text-gray-300">
-          {error.message || "An unexpected error occurred"}
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button
-            onClick={reset}
-            className="px-6 py-3 border border-[#576EB2] text-[#576EB2] rounded hover:bg-[#576EB2] hover:text-black transition duration-300"
-          >
-            Try again
+    <div className="observatory">
+      <SiteHeader />
+      <main className="status-page">
+        <p className="eyebrow">Error / Signal lost</p>
+        <h1>Something went wrong</h1>
+        <p>{error.message || "An unexpected error occurred"}</p>
+        <div className="status-actions">
+          <button className="text-button" onClick={reset}>
+            <FiRefreshCw aria-hidden="true" /> Try again
           </button>
-          <Link
-            href="/"
-            className="px-6 py-3 border border-[#576EB2] text-[#576EB2] rounded hover:bg-[#576EB2] hover:text-black transition duration-300"
-          >
-            Go back home
+          <Link href="/space/mainnet" className="text-link">
+            Go back home <FiArrowRight aria-hidden="true" />
           </Link>
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
