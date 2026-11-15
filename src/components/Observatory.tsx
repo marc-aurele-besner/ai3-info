@@ -10,6 +10,7 @@ import {
   FiArrowUpRight,
   FiBox,
   FiCheck,
+  FiChevronDown,
   FiCircle,
   FiCopy,
   FiPause,
@@ -152,7 +153,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
       <main id="explore">
         <section className="intro">
           <div>
-            <p className="eyebrow">Autonomys Network Info</p>
+            <p className="eyebrow">01 / Autonomys Network Info</p>
             <h1>
               <span className="sr-only">Autonomys </span>
               {networkName}
@@ -172,17 +173,22 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         <div className="network-toolbar">
           <div className="network-picker">
             <label htmlFor="network">You’re exploring</label>
-            <select
-              id="network"
-              value={networkId}
-              onChange={(event) => router.push(`/space/${event.target.value}`)}
-            >
-              {networks.map((network) => (
-                <option key={network.id} value={network.id}>
-                  {network.name}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select
+                id="network"
+                value={networkId}
+                onChange={(event) =>
+                  router.push(`/space/${event.target.value}`)
+                }
+              >
+                {networks.map((network) => (
+                  <option key={network.id} value={network.id}>
+                    {network.name}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown aria-hidden="true" />
+            </span>
           </div>
           <div className="connection">
             <span
@@ -368,7 +374,6 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 <span className="metric-label">
                   <span className={`metric-dot ${metricInfo[key].color}`} />
                   {metricInfo[key].title}
-                  <FiArrowUpRight />
                 </span>
                 <strong>
                   {data
@@ -470,7 +475,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         </section>
         <section className="field-notes">
           <div>
-            <p className="eyebrow">Field notes</p>
+            <p className="eyebrow">04 / Field notes</p>
             <h2>
               A network made of
               <br />
