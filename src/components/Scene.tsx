@@ -1,6 +1,6 @@
 "use client";
 
-import { Html, OrbitControls } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
@@ -208,6 +208,22 @@ function Controls({
   );
 }
 
+/**
+ * Suspense fallback rendered inside the Canvas. It only reports that models are
+ * loading; the visible status lives in the regular DOM next to the canvas.
+ * drei's <Html> was used here before, but it re-creates its React root when the
+ * Canvas connects its events, and React 19 defers the old root's unmount while
+ * committing. Both roots then share one element and the late unmount throws
+ * "Failed to execute 'removeChild' on 'Node'".
+ */
+function LoadingSignal({ onChange }: { onChange: (loading: boolean) => void }) {
+  useEffect(() => {
+    onChange(true);
+    return () => onChange(false);
+  }, [onChange]);
+  return null;
+}
+
 function Fallback() {
   return (
     <div className="scene-fallback">
@@ -236,6 +252,7 @@ class SceneBoundary extends Component<
 
 export function Scene(props: SceneProps) {
   const [lost, setLost] = useState(false);
+  const [modelsLoading, setModelsLoading] = useState(false);
   const [supported, setSupported] = useState<boolean | null>(null);
   useEffect(() => {
     try {
@@ -301,15 +318,7 @@ export function Scene(props: SceneProps) {
             }}
             onPointerMissed={() => props.onSelect(null)}
           >
-            <Suspense
-              fallback={
-                <Html center>
-                  <span className="model-loading" role="status">
-                    Loading network models…
-                  </span>
-                </Html>
-              }
-            >
+            <Suspense fallback={<LoadingSignal onChange={setModelsLoading} />}>
               {props.view === "station" ? (
                 <NetworkModels {...props} playing={props.playing && visible} />
               ) : (
@@ -337,6 +346,13 @@ export function Scene(props: SceneProps) {
               station={props.view === "station"}
             />
           </Canvas>
+          {modelsLoading && (
+            <div className="model-loading-overlay">
+              <span className="model-loading" role="status">
+                Loading network models…
+              </span>
+            </div>
+          )}
         </SceneBoundary>
       )}
     </div>

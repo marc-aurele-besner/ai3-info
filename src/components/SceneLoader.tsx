@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { memo } from "react";
 import type { SceneProps } from "./Scene";
 
 const Scene = dynamic(() => import("./Scene").then((module) => module.Scene), {
@@ -13,4 +14,8 @@ const Scene = dynamic(() => import("./Scene").then((module) => module.Scene), {
   ),
 });
 
-export const SceneLoader = (props: SceneProps) => <Scene {...props} />;
+// Memoized so the page's once-a-second freshness tick does not re-render the
+// 3D tree: every drei <Text> re-syncs and requests a new frame on each render.
+export const SceneLoader = memo(function SceneLoader(props: SceneProps) {
+  return <Scene {...props} />;
+});
