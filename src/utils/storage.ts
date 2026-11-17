@@ -102,3 +102,31 @@ export function positionFromCapacity(terabytes: number): number {
     (Math.log(clamped / CAPACITY_MIN_TB) / capacityLogRange) * CAPACITY_STEPS,
   );
 }
+
+/** Units the sandbox amount field accepts, as decimal multiples of 1 TB. */
+export const CAPACITY_UNITS = { GB: 1e-3, TB: 1, PB: 1e3 } as const;
+export type CapacityUnit = keyof typeof CAPACITY_UNITS;
+
+/** Typed contributions stay between 1 GB and 1 EB. */
+export const TYPED_MIN_TB = 1e-3;
+export const TYPED_MAX_TB = 1e6;
+
+/** A TB amount shown in another unit, as a plain editable number. */
+export function formatAmount(terabytes: number, unit: CapacityUnit): string {
+  return String(Number((terabytes / CAPACITY_UNITS[unit]).toPrecision(6)));
+}
+
+/**
+ * Parses a typed amount such as "1,500" or "2.5" in the given unit into TB.
+ * Returns null when it is not a number between 1 GB and 1 EB.
+ */
+export function parseAmount(text: string, unit: CapacityUnit): number | null {
+  const cleaned = text.replace(/[,\s]/g, "");
+  if (!/^(\d+\.?\d*|\.\d+)$/.test(cleaned)) return null;
+  const terabytes = Number(
+    (Number(cleaned) * CAPACITY_UNITS[unit]).toPrecision(12),
+  );
+  return terabytes >= TYPED_MIN_TB && terabytes <= TYPED_MAX_TB
+    ? terabytes
+    : null;
+}

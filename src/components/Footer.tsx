@@ -1,5 +1,6 @@
 import { FC } from "react";
-import { FaGithub, FaHeart, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaHeart, FaLinkedin } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { FiArrowUpRight } from "react-icons/fi";
 
 export const Footer: FC = () => {
@@ -44,7 +45,7 @@ export const Footer: FC = () => {
           rel="noopener noreferrer"
           aria-label="Visit Marc-Aurèle on X (Twitter)"
         >
-          <FaTwitter size={16} aria-hidden="true" />
+          <FaXTwitter size={16} aria-hidden="true" />
         </a>
       </div>
     </footer>
