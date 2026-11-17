@@ -130,7 +130,7 @@ button:active:not(:disabled) {
   grid-template-columns: 1.5fr 1fr;
   align-items: end;
   gap: 40px;
-  padding: 32px 0;
+  padding: 24px 0;
 }
 .eyebrow {
   font-size: 11px;
@@ -161,9 +161,9 @@ button:active:not(:disabled) {
 }
 .intro-aside p {
   font-size: 15px;
-  line-height: 1.75;
+  line-height: 1.7;
   color: var(--muted);
-  margin-bottom: 21px;
+  margin: 0 0 16px;
 }
 .intro-aside .text-link {
   border-bottom: 1px solid var(--line);
@@ -273,6 +273,11 @@ button:active:not(:disabled) {
 .notice button {
   flex-shrink: 0;
   text-decoration: underline;
+}
+.notice-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 18px;
 }
 .sample-notice {
   background: #131e35;
@@ -465,6 +470,28 @@ input[type="range"] {
   font-size: 12px;
   color: var(--muted);
 }
+.skeleton-reading {
+  width: min(160px, 70%);
+  height: 0.8em;
+  margin: 0.15em 0;
+}
+.sandbox-result .skeleton-reading {
+  width: 110px;
+}
+.block-trend {
+  padding: 16px 15px;
+  border-bottom: 1px solid var(--line);
+}
+.block-trend-label {
+  font-size: 11px;
+  color: var(--muted);
+}
+.block-trend p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
 .metric-explainer {
   margin: 20px 12px 0;
 }
@@ -509,13 +536,22 @@ input[type="range"] {
   max-width: 280px;
 }
 .sandbox-tag {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 16px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  text-align: left;
+}
+.sandbox-tag:hover:not(:disabled) {
+  border-bottom-color: var(--accent);
 }
 .sandbox-tag span {
+  flex-shrink: 0;
   width: 8px;
   height: 8px;
   background: #90e4c3;
@@ -531,15 +567,52 @@ input[type="range"] {
   gap: 10px;
   margin: 10px 0;
 }
-.capacity-value output {
+.capacity-amount {
   font-size: 58px;
   letter-spacing: -0.055em;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed var(--line);
+  border-radius: 0;
+  padding: 0;
+  min-width: 0;
+  max-width: 100%;
+  transition: border-color 0.2s;
 }
-.capacity-value span {
+.capacity-amount:hover,
+.capacity-amount:focus-visible {
+  border-bottom-color: var(--accent);
+}
+.capacity-amount:focus-visible {
+  outline: none;
+  border-bottom-style: solid;
+}
+.capacity-amount[aria-invalid="true"] {
+  border-bottom-color: #e0905a;
+}
+.unit-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
   font-size: 19px;
   color: var(--muted);
+  padding: 2px 24px 2px 2px;
+}
+.unit-select select:hover,
+.unit-select select:focus-visible {
+  border-bottom-color: var(--accent);
+  color: var(--foreground);
+}
+.amount-error {
+  font-size: 12px;
+  color: #e0905a;
+  margin: 0 0 10px;
 }
 .sandbox-input > input {
   width: 100%;
@@ -620,21 +693,6 @@ input[type="range"] {
   line-height: 1.85;
   max-width: 600px;
   margin: 14px 0;
-}
-.activity-strip {
-  padding: 20px 0;
-  border-top: 1px solid var(--line);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  justify-content: space-between;
-}
-.activity-strip p {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 8px;
-  overflow-wrap: anywhere;
 }
 .block-sparkline {
   display: inline-flex;
@@ -875,9 +933,12 @@ input[type="range"] {
     justify-self: start;
     max-width: 390px;
   }
+  .intro {
+    padding: 20px 0;
+  }
   .intro-aside p {
     font-size: 13px;
-    margin: 0 0 16px;
+    margin: 0 0 12px;
   }
   .network-toolbar {
     gap: 8px 16px;
@@ -941,15 +1002,28 @@ input[type="range"] {
   .cell-inspector .text-button {
     margin-left: 24px;
   }
+  /* Readings come before the 3D scene so the numbers show without scrolling. */
   .readings {
-    border-top: 1px solid var(--line);
-    padding: 26px 0;
+    order: -1;
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+  }
+  .metric-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
   .metric {
-    padding: 18px 14px;
+    padding: 12px 12px;
+  }
+  .metric:last-child {
+    grid-column: 1 / -1;
   }
   .metric strong {
-    font-size: 38px;
+    font-size: 30px;
+    margin: 4px 0 0;
+  }
+  .metric-hint {
+    display: none;
   }
   .metric-explainer p {
     font-size: 12px;
@@ -977,7 +1051,7 @@ input[type="range"] {
   .sandbox-input > label {
     font-size: 11px;
   }
-  .capacity-value output {
+  .capacity-amount {
     font-size: 47px;
   }
   .presets button {
@@ -1031,7 +1105,8 @@ input[type="range"] {
 }
 
 .network-picker select,
-.network-picker option {
+.network-picker option,
+.unit-select option {
   background: #050810;
 }
 .view-switch button {

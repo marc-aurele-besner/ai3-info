@@ -2,9 +2,11 @@ import { expect, test } from "@playwright/test";
 import {
   capacityFromPosition,
   contributionShare,
+  formatAmount,
   formatBytes,
   formatOneIn,
   formatShare,
+  parseAmount,
   positionFromCapacity,
   storageBytes,
 } from "../src/utils/storage";
@@ -49,6 +51,19 @@ test("contribution share reads as significant figures and 1 in N", () => {
   expect(formatOneIn(contributionShare(1, 2.4e15))).toBe("1 in 2,400");
   expect(formatOneIn(0.00001)).toBe("1 in 10M");
   expect(formatOneIn(80)).toBeNull();
+});
+
+test("typed storage amounts convert units and reject out-of-range values", () => {
+  expect(parseAmount("2.5", "PB")).toBe(2500);
+  expect(parseAmount("1,500", "GB")).toBe(1.5);
+  expect(parseAmount("1", "GB")).toBe(0.001);
+  expect(parseAmount("0.5", "GB")).toBeNull();
+  expect(parseAmount("2000", "PB")).toBeNull();
+  expect(parseAmount("abc", "TB")).toBeNull();
+  expect(parseAmount("", "TB")).toBeNull();
+  expect(formatAmount(2500, "PB")).toBe("2.5");
+  expect(formatAmount(0.0025, "GB")).toBe("2.5");
+  expect(formatAmount(1024, "TB")).toBe("1024");
 });
 
 test("explore live readings, model controls, inspection, and contribution", async ({
@@ -132,7 +147,7 @@ test("initial failure, sample mode, cached data, and route changes are honest", 
     page.getByText("Connection unavailable", { exact: true }),
   ).toBeVisible();
   await expect(page.locator(".sandbox-result strong")).toHaveText("—");
-  await page.getByRole("button", { name: "Explore sample data" }).click();
+  await page.getByRole("button", { name: "Use sample data" }).click();
   await expect(page.locator(".sandbox-result strong")).toHaveText("0.415%");
   await page.unroute("**/api/data/**");
   await page.route("**/api/data/**", (route) =>
@@ -170,7 +185,7 @@ test("mobile and reduced motion keep all controls usable", async ({ page }) => {
     "aria-valuetext",
     "11 TB",
   );
-  await expect(page.locator(".capacity-value output")).toHaveText("11");
+  await expect(page.getByLabel("Storage amount")).toHaveValue("11");
   await page.getByRole("button", { name: "1 TB", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "1 TB", exact: true }),
@@ -202,6 +217,22 @@ test("WebGL failure preserves the data and calculator", async ({ page }) => {
   await expect(page.getByText("Your observatory, in 2D.")).toBeVisible();
   await page.getByRole("button", { name: "100 TB", exact: true }).click();
   await expect(page.locator(".sandbox-result strong")).toHaveText("4%");
+  await page.getByLabel("Unit").selectOption("PB");
+  await expect(page.getByLabel("Storage amount")).toHaveValue("0.1");
+  await page.getByLabel("Storage amount").fill("2.4");
+  await expect(page.locator(".sandbox-result strong")).toHaveText("50%");
+  await page.getByLabel("Storage amount").fill("5000");
+  await expect(page.locator(".amount-error")).toHaveText(
+    "Enter an amount between 1 GB and 1,000,000 TB.",
+  );
+  await expect(page.locator(".sandbox-result strong")).toHaveText("50%");
+  await page
+    .getByRole("button", { name: /See your contribution in the Storage lab/ })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Storage lab", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Storage amount")).toHaveValue("2.4");
 });
 
 test("loads mainnet directly and preserves the original scene, branding, and footer", async ({

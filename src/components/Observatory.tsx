@@ -16,6 +16,7 @@ import {
   FiPlay,
   FiRefreshCw,
   FiRotateCcw,
+  FiTarget,
 } from "react-icons/fi";
 import { SceneLoader } from "./SceneLoader";
 import { BlockSparkline } from "./BlockSparkline";
@@ -24,12 +25,17 @@ import { useNetworkData } from "@/utils/useNetworkData";
 import type { ApiData } from "@/utils/api";
 import { farmingDocsUrl, fieldNotes } from "@/constants/faq";
 import {
+  CAPACITY_MAX_TB,
   CAPACITY_STEPS,
+  CAPACITY_UNITS,
+  type CapacityUnit,
   capacityFromPosition,
   contributionShare,
+  formatAmount,
   formatBytes,
   formatOneIn,
   formatShare,
+  parseAmount,
   positionFromCapacity,
   SAMPLE_DATA,
   storageBytes,
@@ -86,6 +92,9 @@ export function Observatory({ networkId, networks, initialData }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [capacity, setCapacity] = useState(10);
+  const [unit, setUnit] = useState<CapacityUnit>("TB");
+  const [amountText, setAmountText] = useState("10");
+  const [amountInvalid, setAmountInvalid] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const pledged = data
@@ -124,8 +133,24 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         : data
           ? "Live network"
           : "Connecting";
+  // Nothing to show yet, and nothing has failed: still waiting on a reading.
+  const pending = !data && !error;
   const selectedBytes =
     metric === "space" ? pledged : metric === "chain" ? chain : null;
+
+  // Slider and presets work in whole TB, so they reset the unit to TB.
+  function setCapacityInTB(terabytes: number) {
+    setCapacity(terabytes);
+    setUnit("TB");
+    setAmountText(formatAmount(terabytes, "TB"));
+    setAmountInvalid(false);
+  }
+
+  function showInStorageLab() {
+    setView("storage");
+    setSelected(null);
+    document.getElementById("network-explorer")?.scrollIntoView();
+  }
 
   async function copyLink() {
     try {
@@ -230,10 +255,17 @@ export function Observatory({ networkId, networks, initialData }: Props) {
         )}
         {error && !demo && (
           <div className="notice" role="status">
-            {error} {data && "The last successful reading is still shown."}
-            <button onClick={refresh} disabled={loading}>
-              {loading ? "Retrying…" : "Retry connection"}
-            </button>
+            <span>
+              {error} {data && "The last successful reading is still shown."}
+            </span>
+            <span className="notice-actions">
+              <button onClick={refresh} disabled={loading}>
+                {loading ? "Retrying…" : "Retry connection"}
+              </button>
+              {!data && (
+                <button onClick={() => setDemo(true)}>Use sample data</button>
+              )}
+            </span>
           </div>
         )}
         {demo && (
@@ -242,7 +274,11 @@ export function Observatory({ networkId, networks, initialData }: Props) {
             shared across all networks.
           </div>
         )}
-        <section className="workspace" aria-label="Network explorer">
+        <section
+          className="workspace"
+          id="network-explorer"
+          aria-label="Network explorer"
+        >
           <div className="visual-panel">
             <div className="visual-heading">
               <div className="segmented view-switch" aria-label="Scene view">
@@ -279,7 +315,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 selected={selected}
                 onSelect={setSelected}
                 resetKey={resetKey}
-                contribution={capacity}
+                contribution={Math.min(capacity, CAPACITY_MAX_TB)}
               />
               <div className="scene-caption">
                 <span className="coordinate">
@@ -370,7 +406,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 }
               >
                 {selected === null ? "Inspect a cell" : "Next cell"}{" "}
-                <FiArrowUpRight />
+                <FiTarget aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -381,35 +417,58 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 {demo ? "Illustrative snapshot" : "Refreshes every 30s"}
               </span>
             </div>
-            {(["space", "chain", "blocks"] as const).map((key) => (
-              <button
-                key={key}
-                className={`metric ${metric === key ? "active" : ""}`}
-                aria-pressed={metric === key}
-                onClick={() => setMetric(key)}
-              >
-                <span className="metric-label">
-                  <span className={`metric-dot ${metricInfo[key].color}`} />
-                  {metricInfo[key].title}
-                </span>
-                <strong>
-                  {data
-                    ? key === "space"
-                      ? data.spacePledged
+            <div className="metric-list">
+              {(["space", "chain", "blocks"] as const).map((key) => (
+                <button
+                  key={key}
+                  className={`metric ${metric === key ? "active" : ""}`}
+                  aria-pressed={metric === key}
+                  onClick={() => setMetric(key)}
+                >
+                  <span className="metric-label">
+                    <span className={`metric-dot ${metricInfo[key].color}`} />
+                    {metricInfo[key].title}
+                  </span>
+                  <strong>
+                    {data ? (
+                      key === "space" ? (
+                        data.spacePledged
+                      ) : key === "chain" ? (
+                        data.blockchainSize
+                      ) : (
+                        data.blockHeight.toLocaleString("en-US")
+                      )
+                    ) : pending ? (
+                      <>
+                        <span className="skeleton skeleton-reading" />
+                        <span className="sr-only">Loading</span>
+                      </>
+                    ) : (
+                      "—"
+                    )}
+                  </strong>
+                  <span className="metric-hint">
+                    {key === "space"
+                      ? "Storage committed by farmers"
                       : key === "chain"
-                        ? data.blockchainSize
-                        : data.blockHeight.toLocaleString("en-US")
-                    : "—"}
-                </strong>
-                <span className="metric-hint">
-                  {key === "space"
-                    ? "Storage committed by farmers"
-                    : key === "chain"
-                      ? "Reported blockchain data size"
-                      : "Latest observed block number"}
-                </span>
-              </button>
-            ))}
+                        ? "Reported blockchain data size"
+                        : "Latest observed block number"}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="block-trend">
+              <span className="block-trend-label">Observed this visit</span>
+              <p>
+                {demo ? (
+                  "Sample mode · live observation paused"
+                ) : history.length > 1 ? (
+                  <BlockSparkline history={history} />
+                ) : (
+                  "New blocks will appear here as the network updates."
+                )}
+              </p>
+            </div>
             <div className="metric-explainer" aria-live="polite">
               <h2>{info.label}</h2>
               <p>{info.description}</p>
@@ -435,18 +494,60 @@ export function Observatory({ networkId, networks, initialData }: Props) {
               Slide a little. Dream a little. See how your spare storage
               compares with {networkName}.
             </p>
-            <span className="sandbox-tag">
-              <span /> See your contribution in the Storage lab
-            </span>
+            <button className="sandbox-tag" onClick={showInStorageLab}>
+              <span aria-hidden="true" /> See your contribution in the Storage
+              lab <FiArrowUpRight aria-hidden="true" />
+            </button>
           </div>
           <div className="sandbox-input">
             <label htmlFor="capacity">Your storage contribution</label>
             <div className="capacity-value">
-              <output htmlFor="capacity">
-                {capacity.toLocaleString("en-US")}
-              </output>
-              <span>TB</span>
+              <input
+                className="capacity-amount"
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                aria-label="Storage amount"
+                aria-invalid={amountInvalid}
+                aria-describedby={amountInvalid ? "amount-error" : undefined}
+                value={amountText}
+                size={Math.max(2, amountText.length)}
+                onChange={(event) => {
+                  setAmountText(event.target.value);
+                  const terabytes = parseAmount(event.target.value, unit);
+                  setAmountInvalid(terabytes === null);
+                  if (terabytes !== null) setCapacity(terabytes);
+                }}
+                onBlur={() => {
+                  setAmountText(formatAmount(capacity, unit));
+                  setAmountInvalid(false);
+                }}
+              />
+              <span className="select-wrap unit-select">
+                <select
+                  aria-label="Unit"
+                  value={unit}
+                  onChange={(event) => {
+                    const next = event.target.value as CapacityUnit;
+                    setUnit(next);
+                    setAmountText(formatAmount(capacity, next));
+                    setAmountInvalid(false);
+                  }}
+                >
+                  {Object.keys(CAPACITY_UNITS).map((key) => (
+                    <option key={key} value={key}>
+                      {key}
+                    </option>
+                  ))}
+                </select>
+                <FiChevronDown aria-hidden="true" />
+              </span>
             </div>
+            {amountInvalid && (
+              <p className="amount-error" id="amount-error" role="alert">
+                Enter an amount between 1 GB and 1,000,000 TB.
+              </p>
+            )}
             <input
               id="capacity"
               type="range"
@@ -454,7 +555,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
               max={CAPACITY_STEPS}
               step="1"
               value={positionFromCapacity(capacity)}
-              aria-valuetext={`${capacity.toLocaleString("en-US")} TB`}
+              aria-valuetext={`${formatAmount(capacity, unit)} ${unit}`}
               onChange={(event) => {
                 let position = Number(event.target.value);
                 // Several positions round to the same TB; keep stepping in the
@@ -469,7 +570,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                   position < CAPACITY_STEPS
                 )
                   position += direction;
-                setCapacity(capacityFromPosition(position));
+                setCapacityInTB(capacityFromPosition(position));
               }}
             />
             <div className="range-labels">
@@ -482,7 +583,7 @@ export function Observatory({ networkId, networks, initialData }: Props) {
                 <button
                   key={value}
                   aria-pressed={capacity === value}
-                  onClick={() => setCapacity(value)}
+                  onClick={() => setCapacityInTB(value)}
                 >
                   {value.toLocaleString("en-US")} TB
                 </button>
@@ -491,7 +592,18 @@ export function Observatory({ networkId, networks, initialData }: Props) {
           </div>
           <div className="sandbox-result" aria-live="polite">
             <span>Share after adding your storage</span>
-            <strong>{share !== null ? formatShare(share) : "—"}</strong>
+            <strong>
+              {share !== null ? (
+                formatShare(share)
+              ) : pending ? (
+                <>
+                  <span className="skeleton skeleton-reading" />
+                  <span className="sr-only">Loading</span>
+                </>
+              ) : (
+                "—"
+              )}
+            </strong>
             {share !== null && (
               <p className="share-ratio">
                 {formatOneIn(share)
@@ -502,7 +614,9 @@ export function Observatory({ networkId, networks, initialData }: Props) {
             <p>
               {share !== null
                 ? `Your ${formatBytes(capacity * 1e12)} + ${data?.spacePledged} currently pledged.`
-                : "Connect to a network or choose sample data to calculate your share."}
+                : pending
+                  ? "Waiting for the network’s space pledged…"
+                  : "Connect to a network or choose sample data to calculate your share."}
             </p>
             <small>
               Storage comparison only, not a reward estimate. Uses decimal TB (1
@@ -538,20 +652,6 @@ export function Observatory({ networkId, networks, initialData }: Props) {
             ))}
           </div>
         </section>
-        <div className="activity-strip">
-          <div>
-            <span className="eyebrow">Observed this visit</span>
-            <p>
-              {demo ? (
-                "Sample mode · live observation paused"
-              ) : history.length > 1 ? (
-                <BlockSparkline history={history} />
-              ) : (
-                "New block readings will appear here as the network updates."
-              )}
-            </p>
-          </div>
-        </div>
       </main>
       <Footer />
     </div>
